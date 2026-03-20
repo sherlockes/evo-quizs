@@ -94,6 +94,44 @@
             document.getElementById('app-section').classList.add('hidden');
         }
     });
+
+    // Importamos la herramienta para leer CSV
+    import "https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js";
+
+    // Creamos un botón invisible para elegir el archivo
+    const inputArchivo = document.createElement('input');
+    inputArchivo.type = 'file';
+    inputArchivo.accept = '.csv';
+
+    // Esta función se activa cuando el Admin hace clic en el botón verde
+    window.importarCSV = function() {
+        inputArchivo.click(); // Abre la ventana para elegir el archivo
+    };
+
+    inputArchivo.onchange = (e) => {
+        const archivo = e.target.files[0];
+        
+        // PapaParse lee el archivo
+        Papa.parse(archivo, {
+            header: true, // Esto significa que la primera fila tiene los títulos (email, password)
+            complete: async function(results) {
+                console.log("Datos leídos:", results.data);
+                
+                for (let usuario de results.data) {
+                    if(usuario.email && usuario.password) {
+                        try {
+                            // Creamos al usuario en Firebase
+                            await createUserWithEmailAndPassword(auth, usuario.email, usuario.password);
+                            console.log("Creado con éxito: " + usuario.email);
+                        } catch (error) {
+                            console.error("Error con " + usuario.email + ": " + error.message);
+                        }
+                    }
+                }
+                alert("Proceso de importación finalizado. Revisa la consola (F12) para ver detalles.");
+            }
+        });
+    };
 </script>
 </body>
 </html>
