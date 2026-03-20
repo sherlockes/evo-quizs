@@ -2,71 +2,83 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Quizs-Evo | Admin Panel</title>
+    <title>Quizs-Evo</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; display: flex; justify-content: center; padding-top: 30px; }
         .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 600px; text-align: center; }
         input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 5px; transition: 0.3s; }
-        .btn-primary { background: #007bff; color: white; }
+        button { width: 100%; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-primary { background: #007bff; color: white; margin-top: 10px; width: 100%; }
         .btn-admin { background: #28a745; color: white; margin-bottom: 20px; }
         .hidden { display: none; }
-        #mensaje { color: red; font-size: 14px; margin-top: 10px; }
         
-        .tabla-container { margin-top: 20px; text-align: left; max-height: 400px; overflow-y: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 10px; border: 1px solid #eee; text-align: left; font-size: 14px; }
-        th { background: #f8f9fa; }
+        /* Estilos de tabla */
+        .tabla-container { margin-top: 20px; text-align: left; max-height: 300px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; border: 1px solid #eee; font-size: 14px; }
         
         /* Botones de acción */
-        .btn-accion { padding: 4px 8px; font-size: 11px; width: auto; margin-right: 5px; }
-        .btn-edit { background: #ffc107; color: #212529; }
+        .btn-accion { padding: 4px 8px; font-size: 11px; width: auto; margin: 2px; }
+        .btn-edit { background: #ffc107; }
         .btn-borrar { background: #dc3545; color: white; }
-        .badge-curso { background: #e9ecef; padding: 3px 8px; border-radius: 4px; font-weight: bold; }
+        
+        /* Panel Alumno */
+        .panel-alumno { background: #e7f3ff; padding: 20px; border-radius: 8px; border: 1px solid #b6d4fe; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div id="auth-section">
+    <div id="section-login">
         <h2>Quizs-Evo</h2>
         <input type="email" id="email" placeholder="Correo electrónico">
         <input type="password" id="password" placeholder="Contraseña">
         <button class="btn-primary" id="btn-login">Entrar</button>
-        <p id="mensaje"></p>
+        <p id="mensaje" style="color:red;"></p>
     </div>
 
-    <div id="app-section" class="hidden">
-        <h2>Panel de Control</h2>
-        <p>Admin: <b id="user-email"></b></p>
+    <div id="section-admin" class="hidden">
+        <h2 style="color: #28a745;">Panel Administrador</h2>
+        <p>Bienvenido, <b id="admin-email"></b></p>
+        <hr>
+        <button class="btn-admin" id="btn-importar">📂 Importar Alumnos (CSV)</button>
         
-        <div id="admin-tools" class="hidden">
+        <div class="tabla-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Curso</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpo-tabla"></tbody>
+            </table>
+        </div>
+        <br>
+        <button style="background:#6c757d; color:white;" class="logout">Cerrar Sesión</button>
+    </div>
+
+    <div id="section-alumno" class="hidden">
+        <div class="panel-alumno">
+            <h2>Panel del Alumno</h2>
+            <p>Hola: <b id="alumno-email"></b></p>
+            <p>Tu curso: <span id="alumno-curso" style="font-weight:bold;">Cargando...</span></p>
             <hr>
-            <button class="btn-admin" id="btn-importar">📂 Importar Alumnos (CSV)</button>
-            
-            <div class="tabla-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Email</th>
-                            <th>Curso</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cuerpo-tabla"></tbody>
-                </table>
+            <div id="lista-cuestionarios">
+                <p>Próximamente verás aquí tus cuestionarios disponibles.</p>
             </div>
         </div>
-
-        <button style="background:#6c757d; color:white; margin-top: 20px;" id="btn-logout">Cerrar Sesión</button>
+        <br>
+        <button style="background:#6c757d; color:white;" class="logout">Cerrar Sesión</button>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, updateDoc, collection, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBpMD8ezkxeG7qeJHTAgSuXmyX1ma7M7Ng",
@@ -83,47 +95,71 @@
 
     const CORREO_ADMIN = "sherlockes@gmail.com"; 
 
-    // Autenticación
+    // Login
     document.getElementById('btn-login').onclick = async () => {
         const mail = document.getElementById('email').value;
         const pass = document.getElementById('password').value;
         try { await signInWithEmailAndPassword(auth, mail, pass); } 
-        catch (e) { document.getElementById('mensaje').innerText = "Error: " + e.message; }
+        catch (e) { document.getElementById('mensaje').innerText = "Credenciales incorrectas"; }
     };
 
-    document.getElementById('btn-logout').onclick = () => signOut(auth);
+    // Logout (Para ambos botones)
+    document.querySelectorAll('.logout').forEach(btn => {
+        btn.onclick = () => signOut(auth);
+    });
 
-    onAuthStateChanged(auth, (user) => {
+    // --- EL CEREBRO DE LA REDIRECCIÓN ---
+    onAuthStateChanged(auth, async (user) => {
+        const sLogin = document.getElementById('section-login');
+        const sAdmin = document.getElementById('section-admin');
+        const sAlumno = document.getElementById('section-alumno');
+
         if (user) {
-            document.getElementById('auth-section').classList.add('hidden');
-            document.getElementById('app-section').classList.remove('hidden');
-            document.getElementById('user-email').innerText = user.email;
+            sLogin.classList.add('hidden');
+            
             if (user.email === CORREO_ADMIN) {
-                document.getElementById('admin-tools').classList.remove('hidden');
-                activarSincronizacion();
+                // ES ADMIN
+                sAdmin.classList.remove('hidden');
+                sAlumno.classList.add('hidden');
+                document.getElementById('admin-email').innerText = user.email;
+                activarSincronizacionAdmin();
+            } else {
+                // ES ALUMNO
+                sAdmin.classList.add('hidden');
+                sAlumno.classList.remove('hidden');
+                document.getElementById('alumno-email').innerText = user.email;
+                
+                // Buscamos su curso en la base de datos
+                const docRef = doc(db, "usuarios", user.email);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    document.getElementById('alumno-curso').innerText = docSnap.data().curso || "No asignado";
+                }
             }
         } else {
-            document.getElementById('auth-section').classList.remove('hidden');
-            document.getElementById('app-section').classList.add('hidden');
+            // No hay nadie logueado
+            sLogin.classList.remove('hidden');
+            sAdmin.classList.add('hidden');
+            sAlumno.classList.add('hidden');
+            document.getElementById('mensaje').innerText = "";
         }
     });
 
-    // --- FUNCIONES DE LA TABLA ---
-
-    function activarSincronizacion() {
+    // Lógica Admin (Tabla y CSV) - Mantenemos lo anterior
+    function activarSincronizacionAdmin() {
         onSnapshot(collection(db, "usuarios"), (snapshot) => {
             const tabla = document.getElementById('cuerpo-tabla');
             tabla.innerHTML = ""; 
             snapshot.forEach((docSnap) => {
                 const u = docSnap.data();
-                const id = docSnap.id;
+                if(u.email === CORREO_ADMIN) return; // No mostrar al admin en la tabla
                 tabla.innerHTML += `
                     <tr>
                         <td>${u.email}</td>
-                        <td><span class="badge-curso">${u.curso || '---'}</span></td>
+                        <td>${u.curso || '---'}</td>
                         <td>
-                            <button class="btn-accion btn-edit" onclick="editarCurso('${id}', '${u.curso || ''}')">Editar</button>
-                            <button class="btn-accion btn-borrar" onclick="borrarAlumno('${id}')">X</button>
+                            <button class="btn-accion btn-edit" onclick="editarCurso('${docSnap.id}', '${u.curso || ''}')">Edit</button>
+                            <button class="btn-accion btn-borrar" onclick="borrarAlumno('${docSnap.id}')">X</button>
                         </td>
                     </tr>
                 `;
@@ -131,32 +167,20 @@
         });
     }
 
-    // Función para editar solo el curso
-    window.editarCurso = async (id, cursoActual) => {
-        const nuevoCurso = prompt("Editar curso para " + id + ":", cursoActual);
-        if (nuevoCurso !== null && nuevoCurso !== cursoActual) {
-            try {
-                const docRef = doc(db, "usuarios", id);
-                await updateDoc(docRef, { curso: nuevoCurso });
-                alert("Curso actualizado con éxito");
-            } catch (e) {
-                alert("Error al actualizar: " + e.message);
-            }
-        }
+    // Funciones globales para botones
+    window.editarCurso = async (id, actual) => {
+        const nuevo = prompt("Nuevo curso:", actual);
+        if(nuevo) await updateDoc(doc(db, "usuarios", id), { curso: nuevo });
     };
-
     window.borrarAlumno = async (id) => {
-        if(confirm("¿Seguro que quieres eliminar a " + id + "?")) {
-            await deleteDoc(doc(db, "usuarios", id));
-        }
+        if(confirm("¿Borrar?")) await deleteDoc(doc(db, "usuarios", id));
     };
 
-    // Importación CSV
+    // Importación (Configuración del input archivo)
     const inputArchivo = document.createElement('input');
     inputArchivo.type = 'file';
     inputArchivo.accept = '.csv';
     document.getElementById('btn-importar').onclick = () => inputArchivo.click();
-
     inputArchivo.onchange = (e) => {
         const archivo = e.target.files[0];
         Papa.parse(archivo, {
@@ -165,12 +189,6 @@
             complete: async function(results) {
                 for (let fila of results.data) {
                     if(fila.email) {
-                        try {
-                            // Intentamos crear el usuario en Auth (si ya existe, saltará al siguiente paso)
-                            await createUserWithEmailAndPassword(auth, fila.email, fila.password || "123456");
-                        } catch (err) {}
-                        
-                        // Guardamos/Sobrescribimos en Firestore
                         await setDoc(doc(db, "usuarios", fila.email), {
                             email: fila.email,
                             rol: "alumno",
@@ -178,7 +196,7 @@
                         });
                     }
                 }
-                alert("Importación finalizada.");
+                alert("Importados.");
             }
         });
     };
