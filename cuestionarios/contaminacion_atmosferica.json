@@ -1,0 +1,302 @@
+[
+  {
+    "pregunta": "¿Cuál es la temperatura media de la Tierra gracias al efecto invernadero natural?",
+    "opciones": ["-18 °C", "0 °C", "15 °C", "21 °C"],
+    "respuestaCorrecta": 2,
+    "explicacion": "El efecto invernadero natural permite mantener una temperatura media de 15 °C, esencial para la vida; sin él, la temperatura sería de -18 °C."
+  },
+  {
+    "pregunta": "¿Qué gas es el principal responsable del calentamiento global antropogénico según las fuentes?",
+    "opciones": ["Dióxido de carbono (CO2)", "Metano (CH4)", "Óxido nitroso (N2O)", "CFCs"],
+    "respuestaCorrecta": 0,
+    "explicacion": "El CO2 es el principal gas responsable debido a la quema masiva de combustibles fósiles y la deforestación,."
+  },
+  {
+    "pregunta": "¿Cuál es la función principal de la capa de ozono estratosférico?",
+    "opciones": ["Retener el calor solar", "Actuar como escudo contra la radiación ultravioleta", "Regular el ciclo del agua", "Filtrar el exceso de CO2"],
+    "respuestaCorrecta": 1,
+    "explicacion": "El ozono en la estratosfera absorbe la radiación UV dañina del Sol, protegiendo a los seres vivos,."
+  },
+  {
+    "pregunta": "¿Qué gases son los precursores principales de la lluvia ácida?",
+    "opciones": ["Metano y vapor de agua", "CFCs y ozono", "Dióxido de carbono y oxígeno", "Dióxido de azufre y óxidos de nitrógeno"],
+    "respuestaCorrecta": 3,
+    "explicacion": "El SO2 y los NOx reaccionan con el agua atmosférica para formar ácidos sulfúrico y nítrico,."
+  },
+  {
+    "pregunta": "¿Qué acuerdo internacional logró prohibir con éxito el uso de los CFCs?",
+    "opciones": ["Acuerdo de París", "Protocolo de Kioto", "Protocolo de Montreal", "COP28"],
+    "respuestaCorrecta": 2,
+    "explicacion": "El Protocolo de Montreal (1987) es considerado un gran éxito por detener la destrucción de la capa de ozono,."
+  },
+  {
+    "pregunta": "¿Qué fenómeno meteorológico invernal impide la dispersión de contaminantes en ciudades como Zaragoza?",
+    "opciones": ["Inversión térmica", "Efecto invernadero", "Lluvia ácida", "Viento cierzo"],
+    "respuestaCorrecta": 0,
+    "explicacion": "Durante la inversión térmica, el aire frío queda atrapado cerca del suelo junto con los contaminantes,."
+  },
+  {
+    "pregunta": "¿Qué tipo de ozono aumenta en verano debido a la radiación solar y el tráfico?",
+    "opciones": ["Ozono estratosférico", "Ozono troposférico", "Ozono protector", "Ozono sahariano"],
+    "respuestaCorrecta": 1,
+    "explicacion": "El ozono troposférico ('malo') se forma a nivel del suelo por reacciones químicas bajo fuerte sol,."
+  },
+  {
+    "pregunta": "¿Qué contaminante se asocia directamente a las intrusiones naturales de polvo sahariano?",
+    "opciones": ["Dióxido de azufre", "CFCs", "Metano", "Partículas PM10"],
+    "respuestaCorrecta": 3,
+    "explicacion": "El polvo del desierto dispara los niveles de partículas en suspensión de mayor tamaño (PM10),."
+  },
+  {
+    "pregunta": "¿Cuál es el objetivo principal del Acuerdo de París (2015)?",
+    "opciones": ["Eliminar el uso de aerosoles", "Prohibir la ganadería intensiva", "Limitar el aumento de la temperatura global por debajo de 2 °C", "Establecer impuestos al transporte"],
+    "respuestaCorrecta": 2,
+    "explicacion": "Busca evitar que el calentamiento global supere los 2 °C, intentando limitarlo a 1,5 °C respecto a la era preindustrial,."
+  },
+  {
+    "pregunta": "¿Qué sector es la fuente principal de contaminación en el entorno de Casetas?",
+    "opciones": ["Tráfico rodado (A-68 y N-232)", "Ganadería porcina", "Calefacciones eléctricas", "Turismo rural"],
+    "respuestaCorrecta": 0,
+    "explicacion": "Debido a su ubicación en un nudo de comunicaciones, el tráfico de camiones y turismos es la fuente dominante,."
+  },
+  {
+    "pregunta": "¿Qué impacto tiene la lluvia ácida sobre el patrimonio histórico?",
+    "opciones": ["Limpieza natural de fachadas", "El fenómeno del 'mal de la piedra'", "Aumento de la resistencia del mármol", "No tiene efectos sobre materiales inertes"],
+    "respuestaCorrecta": 1,
+    "explicacion": "Los ácidos corroen la piedra caliza y el mármol, deteriorando monumentos históricos,."
+  },
+  {
+    "pregunta": "¿Por qué las partículas PM2.5 son especialmente peligrosas para la salud?",
+    "opciones": ["Porque destruyen la capa de ozono", "Porque causan lluvia ácida", "Porque provocan el deshielo", "Porque penetran profundamente en los pulmones y pasan a la sangre"],
+    "respuestaCorrecta": 3,
+    "explicacion": "Su tamaño microscópico les permite llegar al torrente sanguíneo, afectando al sistema cardiovascular,."
+  },
+  {
+    "pregunta": "¿Cómo actúa el cloro liberado de los CFCs en la estratosfera?",
+    "opciones": ["Genera lluvia ácida", "Calienta el aire", "Destruye catalíticamente miles de moléculas de ozono", "Absorbe la radiación infrarroja"],
+    "respuestaCorrecta": 2,
+    "explicacion": "Un solo átomo de cloro puede romper miles de moléculas de O3 en una reacción en cadena,."
+  },
+  {
+    "pregunta": "¿Qué grupo de países suele liderar los recortes de emisiones según los compromisos climáticos?",
+    "opciones": ["Países desarrollados (como la Unión Europea)", "Países productores de petróleo", "Países en vías de desarrollo", "Países insulares del Pacífico"],
+    "respuestaCorrecta": 0,
+    "explicacion": "Las naciones ricas suelen fijar metas de reducción más ambiciosas, aunque se les exige mayor financiación,."
+  },
+  {
+    "pregunta": "¿Qué se entiende por 'justicia climática' en las negociaciones de la ONU?",
+    "opciones": ["Juicios contra empresas petroleras", "Financiación de países ricos a pobres para la transición energética", "Leyes iguales para todos los ciudadanos", "Reparto equitativo del petróleo"],
+    "respuestaCorrecta": 1,
+    "explicacion": "Es el argumento de países como India para recibir apoyo económico tras la responsabilidad histórica de los países ricos,."
+  },
+  {
+    "pregunta": "¿Qué tipo de radiación queda atrapada por los gases de efecto invernadero?",
+    "opciones": ["Rayos Gamma", "Luz visible", "Radiación ultravioleta", "Radiación infrarroja (calor)"],
+    "respuestaCorrecta": 3,
+    "explicacion": "Estos gases absorben el calor emitido por la Tierra y lo reemiten, calentando la atmósfera,."
+  },
+  {
+    "pregunta": "¿Qué consecuencia directa tiene el deshielo de los glaciares y polos?",
+    "opciones": ["Aumento de la radiación UV", "Disminución de la lluvia ácida", "Aumento del nivel del mar", "Extinción de los CFCs"],
+    "respuestaCorrecta": 2,
+    "explicacion": "La liberación de agua dulce almacenada en el hielo eleva el nivel de los océanos a nivel global,."
+  },
+  {
+    "pregunta": "¿Qué país posee una de las mayores reservas probadas de petróleo del mundo?",
+    "opciones": ["Venezuela", "España", "Japón", "Francia"],
+    "respuestaCorrecta": 0,
+    "explicacion": "Venezuela aparece destacada junto a Arabia Saudí y Rusia como poseedora de grandes reservas,."
+  },
+  {
+    "pregunta": "¿Por qué algunos países petroleros muestran resistencia a los acuerdos climáticos?",
+    "opciones": ["Porque no creen en la ciencia", "Porque su PIB depende casi totalmente de los hidrocarburos", "Porque no tienen tecnología eólica", "Porque no participan en las COP"],
+    "respuestaCorrecta": 1,
+    "explicacion": "Sus economías colapsarían ante un abandono rápido de los combustibles fósiles sin una alternativa previa,."
+  },
+  {
+    "pregunta": "¿Qué tecnología defienden los lobbies petroleros para seguir usando hidrocarburos?",
+    "opciones": ["Fusión nuclear", "Energía mareomotriz", "Reforestación masiva", "Captura y almacenamiento de CO2"],
+    "respuestaCorrecta": 3,
+    "explicacion": "Proponen extraer petróleo pero 'limpiar' el aire capturando las emisiones resultantes,."
+  },
+  {
+    "pregunta": "¿Qué impacto tiene el agujero de ozono en los ecosistemas marinos?",
+    "opciones": ["Acidifica el agua del mar", "Calienta el fondo oceánico", "Daña el fitoplancton, base de la cadena alimentaria", "Aumenta la salinidad"],
+    "respuestaCorrecta": 2,
+    "explicacion": "La radiación UV excesiva destruye el fitoplancton, afectando a todo el ecosistema marino,."
+  },
+  {
+    "pregunta": "¿A partir de qué valor de pH se considera generalmente que la precipitación es ácida?",
+    "opciones": ["Inferior a 5.6", "Superior a 7.0", "Exactamente 10", "Entre 8 y 9"],
+    "respuestaCorrecta": 0,
+    "explicacion": "La lluvia con pH menor a 5.6 indica una concentración peligrosa de ácidos fuertes,."
+  },
+  {
+    "pregunta": "¿Qué enfermedad respiratoria crónica se ve agravada por la contaminación local?",
+    "opciones": ["Anemia", "Asma", "Diabetes", "Gastritis"],
+    "respuestaCorrecta": 1,
+    "explicacion": "La contaminación por partículas y ozono irrita las vías respiratorias y desencadena crisis asmáticas,."
+  },
+  {
+    "pregunta": "¿Qué contaminante ha disminuido ligeramente en Zaragoza en los últimos años?",
+    "opciones": ["Metano", "Ozono", "CFCs", "Dióxido de nitrógeno (NO2)"],
+    "respuestaCorrecta": 3,
+    "explicacion": "Se observa una leve mejora en el NO2 gracias a las nuevas normativas de emisiones vehiculares,."
+  },
+  {
+    "pregunta": "¿Cuál es la causa principal del metano (CH4) según los apuntes?",
+    "opciones": ["Uso de aires acondicionados", "Plantas de energía nuclear", "Ganadería intensiva y vertederos", "Erosión de rocas"],
+    "respuestaCorrecta": 2,
+    "explicacion": "Las fuentes principales son los procesos digestivos del ganado y la descomposición en vertederos,."
+  },
+  {
+    "pregunta": "¿Qué hito se alcanzó en la COP28 respecto a los combustibles fósiles?",
+    "opciones": ["Avanzar hacia una transición para abandonarlos progresivamente", "Aumentar su extracción para bajar precios", "Ignorar su efecto hasta 2050", "Prohibirlos de forma inmediata"],
+    "respuestaCorrecta": 0,
+    "explicacion": "Fue el primer acuerdo global que explícitamente pide alejarse de los combustibles fósiles."
+  },
+  {
+    "pregunta": "¿Cuál es el riesgo de salud ocular asociado al adelgazamiento de la capa de ozono?",
+    "opciones": ["Miopía", "Cataratas", "Conjuntivitis bacteriana", "Astigmatismo"],
+    "respuestaCorrecta": 1,
+    "explicacion": "El aumento de la exposición a la radiación UV daña directamente el cristalino del ojo,."
+  },
+  {
+    "pregunta": "¿Qué sistema de calefacción residencial emite más partículas peligrosas?",
+    "opciones": ["Bomba de calor eléctrica", "Paneles solares térmicos", "Aerotermia", "Calderas antiguas de gasoil o leña"],
+    "respuestaCorrecta": 3,
+    "explicacion": "La combustión de biomasa o gasoil en equipos viejos genera partículas finas dañinas,."
+  },
+  {
+    "pregunta": "¿Qué fenómeno NO depende de la radiación solar para producirse?",
+    "opciones": ["Ozono troposférico", "Efecto invernadero", "Lluvia ácida", "Agujero de ozono"],
+    "respuestaCorrecta": 2,
+    "explicacion": "La lluvia ácida es un proceso químico de mezcla de gases y agua, independiente de la radiación solar."
+  },
+  {
+    "pregunta": "¿Qué sucede con los peces en lagos con alta acidez por lluvia ácida?",
+    "opciones": ["Mueren al alterarse su entorno acuático", "Crecen más rápido por los nutrientes", "Se vuelven más resistentes", "No les afecta en absoluto"],
+    "respuestaCorrecta": 0,
+    "explicacion": "La acidificación mata la fauna acuática y destruye el equilibrio biológico de los lagos,."
+  },
+  {
+    "pregunta": "¿Cuál es el gas que se emite principalmente por el uso de fertilizantes agrícolas?",
+    "opciones": ["CO2", "Óxido nitroso (N2O)", "CFCs", "SO2"],
+    "respuestaCorrecta": 1,
+    "explicacion": "El N2O es un potente gas de efecto invernadero derivado de las prácticas agrícolas intensivas,."
+  },
+  {
+    "pregunta": "¿Qué efecto cardiovascular grave se asocia a la contaminación por partículas finas?",
+    "opciones": ["Mejora de la circulación", "Aumento de la capacidad pulmonar", "Hipotensión", "Infartos de miocardio e ictus"],
+    "respuestaCorrecta": 3,
+    "explicacion": "Las partículas dañan los vasos sanguíneos y aumentan el riesgo de accidentes cardíacos y cerebrales,."
+  },
+  {
+    "pregunta": "¿Qué son las COP en el contexto de la ONU?",
+    "opciones": ["Centros de Operación Policial", "Comités de Organización del Petróleo", "Conferencias de las Partes", "Coaliciones de Operación Planetaria"],
+    "respuestaCorrecta": 2,
+    "explicacion": "Son las reuniones mundiales anuales donde se negocian los tratados sobre cambio climático,."
+  },
+  {
+    "pregunta": "¿Qué diferencia al ozono 'bueno' del 'malo'?",
+    "opciones": ["Su ubicación: estratosfera (bueno) vs. troposfera (malo)", "El color del gas", "Que uno es natural y otro es artificial", "No hay diferencia, ambos son malos"],
+    "respuestaCorrecta": 0,
+    "explicacion": "El estratosférico nos protege de UV, el troposférico es un contaminante irritante al nivel del suelo,."
+  },
+  {
+    "pregunta": "¿Cuál es la función de las estaciones de monitorización en Zaragoza?",
+    "opciones": ["Generar aire limpio", "Registrar contaminantes en tiempo real para informar a la población", "Emitir multas automáticas", "Controlar la velocidad del tráfico"],
+    "respuestaCorrecta": 1,
+    "explicacion": "Permiten vigilar niveles de NO2, ozono y partículas para proteger la salud pública,."
+  },
+  {
+    "pregunta": "¿Qué contaminantes se emiten principalmente en los polígonos industriales de Casetas?",
+    "opciones": ["CFCs y ozono", "Dióxido de carbono únicamente", "Agua pura y oxígeno", "Óxidos de nitrógeno y partículas"],
+    "respuestaCorrecta": 3,
+    "explicacion": "La actividad manufacturera y logística emite gases de combustión y partículas en suspensión,."
+  },
+  {
+    "pregunta": "¿Qué primer protocolo internacional intentó obligar a reducir GEI en países desarrollados?",
+    "opciones": ["Tratado de Roma", "Protocolo de Kioto", "Protocolo de Montreal", "Acuerdo de París"],
+    "respuestaCorrecta": 2,
+    "explicacion": "El Protocolo de Kioto fue el primer gran intento vinculante de reducción de emisiones contaminantes,."
+  },
+  {
+    "pregunta": "¿Por qué los niños son más vulnerables a la contaminación atmosférica?",
+    "opciones": ["Porque están más cerca del suelo", "Porque sus pulmones están en fase de desarrollo", "Porque no tienen defensas inmunitarias", "Porque pasan más tiempo en el coche"],
+    "respuestaCorrecta": 0,
+    "explicacion": "Sus sistemas respiratorios en crecimiento son más sensibles a daños por partículas y gases,."
+  },
+  {
+    "pregunta": "¿Cuál es la causa humana de las emisiones de SO2?",
+    "opciones": ["Aerosoles", "Centrales térmicas y quema de carbón", "Fertilizantes", "Aires acondicionados"],
+    "respuestaCorrecta": 1,
+    "explicacion": "La industria pesada y la producción de energía con carbón son las fuentes principales de dióxido de azufre,."
+  },
+  {
+    "pregunta": "¿Qué se acordó aumentar en la COP29 celebrada recientemente?",
+    "opciones": ["La extracción de gas natural", "El uso de carbón en Europa", "Las fronteras comerciales", "La financiación climática para países vulnerables"],
+    "respuestaCorrecta": 3,
+    "explicacion": "Se centró en movilizar más fondos para ayudar a países pobres a enfrentar el cambio climático."
+  },
+  {
+    "pregunta": "¿Qué relación hay entre el cambio climático y el ozono?",
+    "opciones": ["Son problemas distintos pero con causas ligadas a la actividad humana", "El cambio climático causa el agujero de ozono", "El ozono causa el calentamiento global", "No tienen ninguna relación en absoluto"],
+    "respuestaCorrecta": 2,
+    "explicacion": "Son fenómenos distintos: uno afecta al calor (infrarroja) y otro a la radiación UV,."
+  },
+  {
+    "pregunta": "¿Qué efecto tiene la contaminación en el torrente sanguíneo?",
+    "opciones": ["Ninguno, el cuerpo lo filtra todo", "Espesa la sangre y daña las paredes de los vasos", "Aumenta la capacidad de transportar oxígeno", "Limpia las arterias"],
+    "respuestaCorrecta": 0,
+    "explicacion": "Las partículas ultrafinas pasan a la sangre, causando inflamación y riesgos cardiovasculares,."
+  },
+  {
+    "pregunta": "¿Cuál es el principal problema de los vertederos según el cambio climático?",
+    "opciones": ["El mal olor", "La ocupación de espacio", "La emisión de metano (CH4) por descomposición", "La destrucción de la capa de ozono"],
+    "respuestaCorrecta": 1,
+    "explicacion": "Los residuos orgánicos al descomponerse liberan metano, un potente gas de efecto invernadero,."
+  },
+  {
+    "pregunta": "¿Qué motivo político tienen algunos países para no reducir emisiones?",
+    "opciones": ["Porque no asisten a la ONU", "Su poder estratégico e influencia geopolítica depende de la energía", "Porque quieren que haga más calor", "Porque no tienen científicos"],
+    "respuestaCorrecta": 3,
+    "explicacion": "El control sobre el petróleo y el gas les otorga un papel relevante en el comercio y la política mundial."
+  },
+  {
+    "pregunta": "¿Qué sucede con los bosques afectados por la lluvia ácida?",
+    "opciones": ["Crecen más sanos", "Se destruye su cubierta vegetal (ej. coníferas)", "Atraen más fauna", "No sufren ningún daño"],
+    "respuestaCorrecta": 2,
+    "explicacion": "La acidez daña las hojas y debilita los árboles, pudiendo llegar a matarlos,."
+  },
+  {
+    "pregunta": "¿Qué tipo de transporte se promueve para mejorar la calidad del aire local?",
+    "opciones": ["Vehículos pesados de gasoil", "Transporte público y electrificación", "Vuelos de corto recorrido", "Coches de segunda mano"],
+    "respuestaCorrecta": 0,
+    "explicacion": "Fomentar el transporte público y limpio reduce las emisiones directas en los núcleos urbanos."
+  },
+  {
+    "pregunta": "¿Cuál es la tendencia de la calidad del aire en Casetas en la última década?",
+    "opciones": ["Ha empeorado drásticamente", "Se mantiene igual que hace 30 años", "Ligera mejora, aunque persisten picos de contaminación", "El aire es ahora totalmente puro"],
+    "respuestaCorrecta": 2,
+    "explicacion": "Gracias a mejores motores y normas, la calidad ha mejorado levemente, pero sigue habiendo picos insalubres,."
+  },
+  {
+    "pregunta": "¿Qué gases absorben la radiación infrarroja de la Tierra?",
+    "opciones": ["Oxígeno y Nitrógeno", "Gases Nobles", "Dióxido de azufre y cloro", "Dióxido de carbono y Metano"],
+    "respuestaCorrecta": 3,
+    "explicacion": "Los GEI tienen la propiedad física de retener la radiación térmica infrarroja,."
+  },
+  {
+    "pregunta": "¿Qué impacto tiene la radiación UV excesiva sobre la visión?",
+    "opciones": ["Mejora la agudeza visual", "Causa daltonismo", "Provoca cataratas oculares", "No afecta a los ojos"],
+    "respuestaCorrecta": 2,
+    "explicacion": "La falta de protección de la capa de ozono aumenta la incidencia de daños graves en el cristalino,."
+  },
+  {
+    "pregunta": "¿Cuál es el resumen de la 'Triple Amenaza Atmosférica' según los esquemas?",
+    "opciones": ["Invernadero, Ozono y Lluvia Ácida", "Viento, Lluvia y Nieve", "CO2, O2 y N2", "Tráfico, Industria y Volcanes"],
+    "respuestaCorrecta": 0,
+    "explicacion": "Son los tres grandes problemas globales: cambio climático, pérdida de ozono y acidificación,."
+  }
+]
