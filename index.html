@@ -59,6 +59,9 @@
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } 
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+    import { getFirestore, doc, setDoc, collection, onSnapshot, deleteDoc } 
+    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
     const firebaseConfig = {
         apiKey: "AIzaSyBpMD8ezkxeG7qeJHTAgSuXmyX1ma7M7Ng",
         authDomain: "quizs-evo.firebaseapp.com",
@@ -126,11 +129,18 @@
                 for (let usuario of results.data) {
                     if(usuario.email && usuario.password) {
                         try {
-                            // Nota: Esto creará los usuarios en Firebase
+                            // 1. Crea el acceso (Auth)
                             await createUserWithEmailAndPassword(auth, usuario.email, usuario.password);
+                            
+                            // 2. Crea la ficha en la tabla (Firestore)
+                            await setDoc(doc(db, "usuarios", usuario.email), {
+                                email: usuario.email,
+                                rol: "alumno"
+                            });
+                            
                             console.log("Creado: " + usuario.email);
                         } catch (error) {
-                            console.log("Aviso: " + usuario.email + " ya existe o tiene error.");
+                            console.log("Aviso: " + usuario.email + " ya existe o hay error.");
                         }
                     }
                 }
@@ -138,6 +148,44 @@
             }
         });
     };
+
+    // Hacer que la función de borrar sea accesible desde la tabla
+    window.borrarUsuario = async (id) => {
+        if(confirm("¿Seguro que quieres borrar a este alumno de la lista?")) {
+            try {
+                await deleteDoc(doc(db, "usuarios", id));
+                alert("Usuario eliminado de la base de datos.");
+            } catch (e) {
+                alert("Error al borrar: " + e.message);
+            }
+        }
+    };
+
+    // Escuchar cambios en la base de datos y actualizar la tabla automáticamente
+    onAuthStateChanged(auth, (user) => {
+        const CORREO_ADMIN = "sherlockes@gmail.com"; // Asegúrate de que este es tu correo
+        
+        if (user && user.email === CORREO_ADMIN) {
+            // Si eres el admin, trae la lista de usuarios de la colección "usuarios"
+            onSnapshot(collection(db, "usuarios"), (snapshot) => {
+                const tabla = document.getElementById('cuerpo-tabla');
+                if(!tabla) return; // Por si acaso no encuentra el elemento
+                
+                tabla.innerHTML = ""; 
+                snapshot.forEach((doc) => {
+                    const u = doc.data();
+                    tabla.innerHTML += `
+                        <tr>
+                            <td style="padding:8px; border:1px solid #ddd;">${u.email}</td>
+                            <td style="padding:8px; border:1px solid #ddd; text-align:center;">
+                                <button onclick="borrarUsuario('${doc.id}')" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Borrar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+        }
+    });
 </script>
 </body>
 </html>
