@@ -1,162 +1,24 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Quizs-Evo | Admin</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; display: flex; justify-content: center; padding-top: 20px; }
-        .container { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 700px; text-align: center; }
-        input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        button { padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; margin-top: 5px; }
-        .btn-primary { background: #007bff; color: white; width: 100%; }
-        .btn-tab { background: #eee; color: #555; width: 48%; margin-bottom: 20px; font-size: 16px; }
-        .btn-tab.active { background: #007bff; color: white; }
-        .hidden { display: none; }
-        
-        /* Secciones de administración */
-        .admin-content { text-align: left; padding: 15px; border: 1px solid #eee; border-radius: 8px; }
-        .form-manual { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-        .flex-row { display: flex; gap: 10px; }
-
-        /* Tabla */
-        .tabla-container { margin-top: 15px; max-height: 300px; overflow-y: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 10px; border: 1px solid #eee; font-size: 13px; text-align: left; }
-        th { background: #f1f1f1; }
-        .btn-accion { padding: 4px 8px; font-size: 11px; width: auto; }
-        .btn-edit { background: #ffc107; }
-        .btn-borrar { background: #dc3545; color: white; }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <div id="section-login">
-        <h2>Quizs-Evo</h2>
-        <input type="email" id="email" placeholder="Email Admin">
-        <input type="password" id="password" placeholder="Password">
-        <button class="btn-primary" id="btn-login">Entrar</button>
-        <p id="mensaje" style="color:red; font-size:13px;"></p>
-    </div>
-
-    <div id="section-admin" class="hidden">
-        <h2 style="color: #28a745;">Panel de Administración</h2>
-        
-        <div style="display: flex; justify-content: space-between;">
-            <button class="btn-tab active" id="tab-btn-alumnos">👥 Gestión Alumnos</button>
-            <button class="btn-tab" id="tab-btn-quizzes">📝 Gestión Cuestionarios</button>
-        </div>
-
-        <div id="view-alumnos" class="admin-content">
-            <h4>Añadir Alumno</h4>
-            <div class="form-manual">
-                <div class="flex-row">
-                    <input type="email" id="m-email" placeholder="Email">
-                    <input type="password" id="m-pass" placeholder="Pass">
-                    <input type="text" id="m-curso" placeholder="Curso">
-                </div>
-                <button class="btn-primary" id="btn-crear-manual">Guardar Usuario</button>
-            </div>
-            <button style="background:#28a745; color:white; width:100%" id="btn-importar">📂 Importar CSV</button>
-            
-            <div class="tabla-container">
-                <table>
-                    <thead><tr><th>Email</th><th>Curso</th><th>Acción</th></tr></thead>
-                    <tbody id="cuerpo-tabla"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <div id="view-quizzes" class="admin-content hidden">
-    <h4 style="margin-top:0;">🚀 Registrar Nuevo Cuestionario</h4>
-    <div class="form-manual" style="background: #f0f4f8; border: 1px solid #d1d9e0;">
-        <div class="flex-row">
-            <input type="text" id="q-titulo" placeholder="Título (ej: Contaminación Atmosférica)" style="width: 60%;">
-            <input type="text" id="q-curso" placeholder="Curso (ej: 1A)" style="width: 35%;">
-        </div>
-        <input type="text" id="q-ruta" placeholder="Ruta relativa (ej: cuestionarios/contaminacion.json)">
-        
-        <div style="text-align: left; margin: 10px 0; display: flex; align-items: center; gap: 10px;">
-            <input type="checkbox" id="q-activo" checked style="width: auto; margin: 0;">
-            <label for="q-activo" style="font-size: 14px; cursor: pointer;">¿Habilitar cuestionario ahora?</label>
-        </div>
-        
-        <button class="btn-primary" id="btn-guardar-quiz" style="background: #6f42c1;">Registrar Cuestionario</button>
-    </div>
-
-    <h4>Cuestionarios en el Sistema</h4>
-    <div class="tabla-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Título</th>
-                    <th>Curso</th>
-                    <th>Estado</th>
-                    <th>Acción</th>
-                </tr>
-            </thead>
-            <tbody id="tabla-quizzes"></tbody>
-        </table>
-    </div>
-</div>
-
-        <br>
-        <button style="background:#6c757d; color:white; width:100%" class="logout">Cerrar Sesión Admin</button>
-    </div>
-
-    <div id="section-alumno" class="hidden">
-        <div style="background:#e7f3ff; padding:20px; border-radius:8px; text-align: left;">
-	    <h2>Panel del Estudiante</h2>
-	    <p>Alumno: <b id="alumno-email"></b> | Curso: <span id="alumno-curso" style="color:blue; font-weight:bold;">...</span></p>
-	    <hr>
-
-	    <div id="lista-examenes">
-		<h4>Exámenes Disponibles</h4>
-		<div id="contenedor-links-examenes">Cargando exámenes...</div>
-	    </div>
-
-	    <div id="quiz-activo" class="hidden">
-		<h3 id="quiz-titulo"></h3>
-		<div id="pregunta-container" style="background:white; padding:15px; border-radius:8px; margin-bottom:10px;">
-		    <p id="pregunta-texto" style="font-weight:bold;"></p>
-		    <div id="opciones-container"></div>
-		</div>
-		<button id="btn-siguiente" class="btn-primary" style="display:none;">Siguiente Pregunta</button>
-	    </div>
-	</div>
-	<br>
-	<button style="background:#6c757d; color:white; width:100%" class="logout">Cerrar Sesión</button>
-    </div>
-</div>
-
 <script type="module">
-    // Importamos las funciones de los otros archivos
-    import { activarAdmin } from './js/admin.js';
+    import { auth, CORREO_ADMIN, db } from './js/config.js';
+    import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // Navegación de pestañas (Tab System)
-    const btnAlumnos = document.getElementById('tab-btn-alumnos');
-    const btnQuizzes = document.getElementById('tab-btn-quizzes');
-    const viewAlumnos = document.getElementById('view-alumnos');
-    const viewQuizzes = document.getElementById('view-quizzes');
+    // Importamos las nuevas piezas
+    import { activarSincronizacionAlumnos, activarSincronizacionQuizzes, crearAlumnoManual, guardarNuevoQuiz } from './js/admin.js';
+    import { cargarListaExamenes } from './js/alumno.js';
 
-    btnAlumnos.onclick = () => {
-        btnAlumnos.classList.add('active'); btnQuizzes.classList.remove('active');
-        viewAlumnos.classList.remove('hidden'); viewQuizzes.classList.add('hidden');
-    };
-    btnQuizzes.onclick = () => {
-        btnQuizzes.classList.add('active'); btnAlumnos.classList.remove('active');
-        viewQuizzes.classList.remove('hidden'); viewAlumnos.classList.add('hidden');
-    };
-
-    // Auth Login
+    // Login
     document.getElementById('btn-login').onclick = async () => {
         const m = document.getElementById('email').value;
         const p = document.getElementById('password').value;
-        try { await signInWithEmailAndPassword(auth, m, p); } catch(e) { document.getElementById('mensaje').innerText = "Acceso denegado"; }
+        try { await signInWithEmailAndPassword(auth, m, p); } 
+        catch (e) { document.getElementById('mensaje').innerText = "Error de acceso"; }
     };
+
+    // Logout
     document.querySelectorAll('.logout').forEach(b => b.onclick = () => signOut(auth));
 
+    // Observador de sesión
     onAuthStateChanged(auth, async (user) => {
         const sL = document.getElementById('section-login');
         const sAd = document.getElementById('section-admin');
@@ -165,239 +27,40 @@
         if (user) {
             sL.classList.add('hidden');
             if (user.email === CORREO_ADMIN) {
-                sAd.classList.remove('hidden'); sAl.classList.add('hidden');
-                activarAdmin();
+                sAd.classList.remove('hidden');
+                activarSincronizacionAlumnos();
+                activarSincronizacionQuizzes();
             } else {
-                sAd.classList.add('hidden'); sAl.classList.remove('hidden');
+                sAl.classList.remove('hidden');
                 document.getElementById('alumno-email').innerText = user.email;
                 const d = await getDoc(doc(db, "usuarios", user.email));
-                if(d.exists()) document.getElementById('alumno-curso').innerText = d.data().curso;
+                if(d.exists()) {
+                    document.getElementById('alumno-curso').innerText = d.data().curso;
+                    cargarListaExamenes(d.data().curso);
+                }
             }
         } else {
             sL.classList.remove('hidden'); sAd.classList.add('hidden'); sAl.classList.add('hidden');
         }
     });
 
-    // --- LÓGICA DE ALTA MANUAL CORREGIDA ---
+    // Delegación de eventos del formulario Admin
     document.getElementById('btn-crear-manual').onclick = async () => {
         const email = document.getElementById('m-email').value;
         const pass = document.getElementById('m-pass').value;
         const curso = document.getElementById('m-curso').value;
-
-        if(!email || !pass || !curso) return alert("Faltan datos");
-
-        try {
-            // USAMOS secondaryAuth para que NO te desloguee a ti
-            try {
-                await createUserWithEmailAndPassword(secondaryAuth, email, pass);
-                // Cerramos la sesión secundaria inmediatamente para limpiar memoria
-                await signOut(secondaryAuth); 
-            } catch (authErr) {
-                if (authErr.code !== 'auth/email-already-in-use') throw authErr;
-                // Si ya existe en Auth, simplemente seguimos para asegurar que esté en Firestore
-            }
-
-            // Registrar en Firestore (esto siempre se ejecuta)
-            await setDoc(doc(db, "usuarios", email), { email, curso, rol: "alumno" });
-            
-            alert("Alumno gestionado correctamente");
-            
-            // LIMPIEZA DE CAMPOS
-            document.getElementById('m-email').value = "";
-            document.getElementById('m-pass').value = "";
-            document.getElementById('m-curso').value = "";
-
-        } catch(e) { 
-            alert("Error crítico: " + e.message); 
-        }
+        await crearAlumnoManual(email, pass, curso);
+        alert("Usuario creado");
     };
 
-    // --- RESTO DE FUNCIONES ---
-    function activarAdmin() {
-        onSnapshot(collection(db, "usuarios"), (snap) => {
-            const t = document.getElementById('cuerpo-tabla');
-            t.innerHTML = "";
-            snap.forEach(d => {
-                const u = d.data();
-                if(u.email === CORREO_ADMIN) return;
-                t.innerHTML += `<tr><td>${u.email}</td><td><b>${u.curso}</b></td><td>
-                    <button class="btn-accion btn-edit" onclick="editar('${d.id}','${u.curso}')">E</button>
-                    <button class="btn-accion btn-borrar" onclick="borrar('${d.id}')">X</button>
-                </td></tr>`;
-            });
-        });
-    }
-
-    window.editar = async (id, c) => {
-        const n = prompt("Nuevo curso:", c);
-        if(n) await updateDoc(doc(db, "usuarios", id), { curso: n });
+    document.getElementById('btn-guardar-quiz').onclick = async () => {
+        const datos = {
+            titulo: document.getElementById('q-titulo').value,
+            curso: document.getElementById('q-curso').value,
+            ruta: document.getElementById('q-ruta').value,
+            activo: document.getElementById('q-activo').checked
+        };
+        await guardarNuevoQuiz(datos);
+        alert("Quiz guardado");
     };
-    window.borrar = async (id) => { if(confirm("¿Borrar?")) await deleteDoc(doc(db, "usuarios", id)); };
-
-    // Importación CSV (También usa la lógica de no-deslogueo si fuera necesario, pero el CSV suele ser masivo)
-    const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.csv';
-    document.getElementById('btn-importar').onclick = () => inp.click();
-    inp.onchange = (e) => {
-        Papa.parse(e.target.files[0], { header: true, complete: async (r) => {
-            for (let f of r.data) {
-                if(f.email) {
-                    try { await createUserWithEmailAndPassword(secondaryAuth, f.email, f.password || "123456"); await signOut(secondaryAuth); } catch(ex){}
-                    await setDoc(doc(db, "usuarios", f.email), { email: f.email, curso: f.curso || "Gral", rol: "alumno" });
-                }
-            }
-            alert("CSV cargado");
-        }});
-    };
-    
-////////////////////////////////////77
-// Variables para el control del examen actual
-let preguntasExamen = [];
-let indicePreguntaActual = 0;
-let aciertos = 0;
-
-// 1. Buscar cuestionarios en Firebase filtrados por el curso del alumno
-async function cargarListaExamenes(cursoAlumno) {
-    const q = query(collection(db, "cuestionarios"), where("curso", "==", cursoAlumno), where("activo", "==", true));
-    
-    onSnapshot(q, (snap) => {
-        const contenedor = document.getElementById('contenedor-links-examenes');
-        contenedor.innerHTML = "";
-        
-        if (snap.empty) {
-            contenedor.innerHTML = "<p>No tienes exámenes asignados por ahora.</p>";
-            return;
-        }
-
-        snap.forEach(docSnap => {
-            const quiz = docSnap.data();
-            const btn = document.createElement('button');
-            btn.innerText = `📝 ${quiz.nombre}`;
-            btn.className = "btn-primary";
-            btn.style.marginBottom = "10px";
-            btn.onclick = () => iniciarExamen(quiz.url_json); // Aquí usa la ruta relativa
-            contenedor.appendChild(btn);
-        });
-    });
-}
-
-// 2. Leer el archivo JSON y empezar el quiz
-async function iniciarExamen(rutaRelativa) {
-    try {
-        const response = await fetch(rutaRelativa);
-        preguntasExamen = await response.json();
-        
-        // Ocultar lista y mostrar contenedor de preguntas
-        document.getElementById('lista-examenes').classList.add('hidden');
-        document.getElementById('quiz-activo').classList.remove('hidden');
-        
-        indicePreguntaActual = 0;
-        aciertos = 0;
-        mostrarPregunta();
-    } catch (e) {
-        alert("Error al cargar el archivo del examen: " + e.message);
-    }
-}
-
-function mostrarPregunta() {
-    const p = preguntasExamen[indicePreguntaActual];
-    document.getElementById('pregunta-texto').innerText = p.pregunta;
-    const contenedorOpciones = document.getElementById('opciones-container');
-    contenedorOpciones.innerHTML = "";
-
-    p.opciones.forEach((opcion, i) => {
-        const btn = document.createElement('button');
-        btn.innerText = opcion;
-        btn.style = "display:block; width:100%; text-align:left; padding:10px; margin:5px 0; background:#f8f9fa; border:1px solid #ddd; cursor:pointer;";
-        btn.onclick = () => verificarRespuesta(i);
-        contenedorOpciones.appendChild(btn);
-    });
-}
-
-function verificarRespuesta(indiceSeleccionado) {
-    const p = preguntasExamen[indicePreguntaActual];
-    if (indiceSeleccionado === p.respuestaCorrecta) {
-        aciertos++;
-        alert("¡Correcto! " + p.explicacion);
-    } else {
-        alert("Incorrecto. La respuesta era: " + p.opciones[p.respuestaCorrecta] + "\n\n" + p.explicacion);
-    }
-
-    indicePreguntaActual++;
-    if (indicePreguntaActual < preguntasExamen.length) {
-        mostrarPregunta();
-    } else {
-        finalizarExamen();
-    }
-}
-
-function finalizarExamen() {
-    alert(`Has terminado. Puntuación: ${aciertos} de ${preguntasExamen.length}`);
-    document.getElementById('lista-examenes').classList.remove('hidden');
-    document.getElementById('quiz-activo').classList.add('hidden');
-}
-
-// Función para guardar cuestionario
-document.getElementById('btn-guardar-quiz').onclick = async () => {
-    const titulo = document.getElementById('q-titulo').value;
-    const curso = document.getElementById('q-curso').value;
-    const ruta = document.getElementById('q-ruta').value;
-    const activo = document.getElementById('q-activo').checked; // Captura el Checkbox
-
-    if(!titulo || !curso || !ruta) return alert("Por favor, rellena todos los campos");
-
-    try {
-        // Guardamos en una nueva colección "cuestionarios"
-        await addDoc(collection(db, "cuestionarios"), {
-            titulo: titulo,
-            curso: curso,
-            ruta: ruta,
-            activo: activo,
-            fechaCreacion: new Date().toISOString()
-        });
-
-        alert("¡Cuestionario añadido correctamente!");
-        
-        // Limpiar formulario
-        document.getElementById('q-titulo').value = "";
-        document.getElementById('q-curso').value = "";
-        document.getElementById('q-ruta').value = "";
-        document.getElementById('q-activo').checked = true;
-
-    } catch (e) {
-        alert("Error al guardar: " + e.message);
-    }
-};
-
-// Función para listar cuestionarios en la tabla de Admin
-onSnapshot(collection(db, "cuestionarios"), (snap) => {
-    const tabla = document.getElementById('tabla-quizzes');
-    tabla.innerHTML = "";
-    snap.forEach(docSnap => {
-        const q = docSnap.data();
-        const id = docSnap.id;
-        tabla.innerHTML += `
-            <tr>
-                <td>${q.titulo}</td>
-                <td><b>${q.curso}</b></td>
-                <td>${q.activo ? '<span style="color:green">✅ Activo</span>' : '<span style="color:red">❌ Desactivado</span>'}</td>
-                <td>
-                    <button class="btn-accion btn-edit" onclick="alternarEstado('${id}', ${q.activo})">On/Off</button>
-                    <button class="btn-accion btn-borrar" onclick="borrarQuiz('${id}')">X</button>
-                </td>
-            </tr>`;
-    });
-});
-
-window.alternarEstado = async (id, estadoActual) => {
-    await updateDoc(doc(db, "cuestionarios", id), { activo: !estadoActual });
-};
-
-window.borrarQuiz = async (id) => {
-    if(confirm("¿Seguro que quieres eliminar este cuestionario?")) {
-        await deleteDoc(doc(db, "cuestionarios", id));
-    }
-};			       
-    
 </script>
-</body>
-</html>
