@@ -22,7 +22,7 @@
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 10px; border: 1px solid #eee; font-size: 13px; text-align: left; }
         th { background: #f1f1f1; }
-        .btn-accion { padding: 4px 8px; font-size: 11px; width: auto; }
+        .btn-accion { padding: 4px 8px; font-size: 11px; width: auto; margin: 2px;}
         .btn-edit { background: #ffc107; }
         .btn-borrar { background: #dc3545; color: white; }
     </style>
@@ -32,8 +32,8 @@
 <div class="container">
     <div id="section-login">
         <h2>Quizs-Evo</h2>
-        <input type="email" id="email" placeholder="Email Admin">
-        <input type="password" id="password" placeholder="Password">
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Contraseña">
         <button class="btn-primary" id="btn-login">Entrar</button>
         <p id="mensaje" style="color:red; font-size:13px;"></p>
     </div>
@@ -94,7 +94,7 @@
     <div id="section-alumno" class="hidden">
         <div style="background:#e7f3ff; padding:20px; border-radius:8px; text-align: left;">
             <h2>Panel Estudiante</h2>
-            <p>Alumno: <b id="alumno-email"></b> | Curso: <span id="alumno-curso">...</span></p>
+            <p>Alumno: <b id="alumno-email"></b> | Curso: <span id="alumno-curso" style="font-weight:bold;">...</span></p>
             <hr>
             <h4>Exámenes Disponibles</h4>
             <div id="lista-examenes"></div>
@@ -105,7 +105,7 @@
 </div>
 
 <script type="module">
-    // --- IMPORTANTE: He quitado el "js/" de las rutas. Ajusta si usas carpeta ---
+    // --- RUTAS CORREGIDAS (Sin el prefijo js/) ---
     import { auth, CORREO_ADMIN, db } from './config.js';
     import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -113,7 +113,7 @@
     import { activarSincronizacionAlumnos, activarSincronizacionQuizzes, crearAlumnoManual, guardarNuevoQuiz } from './admin.js';
     import { cargarListaExamenes } from './alumno.js';
 
-    // Manejo de Pestañas
+    // Lógica de Pestañas
     const btnAlumnos = document.getElementById('tab-btn-alumnos');
     const btnQuizzes = document.getElementById('tab-btn-quizzes');
     const viewAlumnos = document.getElementById('view-alumnos');
@@ -132,8 +132,11 @@
     document.getElementById('btn-login').onclick = async () => {
         const m = document.getElementById('email').value;
         const p = document.getElementById('password').value;
-        try { await signInWithEmailAndPassword(auth, m, p); } 
-        catch (e) { document.getElementById('mensaje').innerText = "Error de acceso"; }
+        try { 
+            await signInWithEmailAndPassword(auth, m, p); 
+        } catch (e) { 
+            document.getElementById('mensaje').innerText = "Credenciales incorrectas"; 
+        }
     };
 
     document.querySelectorAll('.logout').forEach(b => b.onclick = () => signOut(auth));
@@ -155,16 +158,18 @@
                 document.getElementById('alumno-email').innerText = user.email;
                 const d = await getDoc(doc(db, "usuarios", user.email));
                 if(d.exists()) {
-                    document.getElementById('alumno-curso').innerText = d.data().curso;
-                    cargarListaExamenes(d.data().curso);
+                    const curso = d.data().curso;
+                    document.getElementById('alumno-curso').innerText = curso;
+                    cargarListaExamenes(curso);
                 }
             }
         } else {
             sL.classList.remove('hidden'); sAd.classList.add('hidden'); sAl.classList.add('hidden');
+            document.getElementById('mensaje').innerText = "";
         }
     });
 
-    // Formulario Alumno Manual
+    // Eventos Admin
     document.getElementById('btn-crear-manual').onclick = async () => {
         const email = document.getElementById('m-email').value;
         const pass = document.getElementById('m-pass').value;
@@ -178,7 +183,6 @@
         } catch(e) { alert(e.message); }
     };
 
-    // Formulario Quiz
     document.getElementById('btn-guardar-quiz').onclick = async () => {
         const datos = {
             titulo: document.getElementById('q-titulo').value,
@@ -190,6 +194,7 @@
             await guardarNuevoQuiz(datos);
             alert("Cuestionario guardado");
             document.getElementById('q-titulo').value = "";
+            document.getElementById('q-curso').value = "";
             document.getElementById('q-ruta').value = "";
         } catch(e) { alert(e.message); }
     };
