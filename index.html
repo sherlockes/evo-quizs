@@ -23,7 +23,15 @@
         .btn-accion { padding: 4px 8px; font-size: 11px; width: auto; margin-right: 5px; }
         .btn-edit { background: #ffc107; }
         .btn-borrar { background: #dc3545; color: white; }
-    </style>
+        .btn-opcion:hover:not(:disabled) {
+            background: #f0f7ff !important;
+            border-color: #007bff !important;
+            cursor: pointer;
+        }
+        .btn-opcion:disabled {
+            cursor: default;
+        }
+            </style>
 </head>
 <body>
 
