@@ -161,8 +161,17 @@
             ruta: document.getElementById('q-ruta').value,
             activo: document.getElementById('q-activo').checked
         };
-        await guardarNuevoQuiz(datos);
-        alert("Quiz guardado");
+        
+        try {
+            await guardarNuevoQuiz(datos);
+            alert("¡Guardado!");
+            // Aquí borramos los campos:
+            document.getElementById('q-titulo').value = "";
+            document.getElementById('q-curso').value = "";
+            document.getElementById('q-ruta').value = "";
+        } catch(e) {
+            alert("Error: " + e.message);
+        }
     };
 </script>
 </body>
