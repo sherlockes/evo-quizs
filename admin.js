@@ -27,17 +27,13 @@ window.editarAlumno = async (id, c) => {
 };
 
 window.borrarAlumno = async (id) => {
-    if(confirm("¿Borrar alumno?")) await deleteDoc(doc(db, "usuarios", id));
+    if(confirm("¿Eliminar alumno?")) await deleteDoc(doc(db, "usuarios", id));
 };
 
 export async function crearAlumnoManual(email, pass, curso) {
     try {
-        try {
-            await createUserWithEmailAndPassword(secondaryAuth, email, pass);
-            await signOut(secondaryAuth); 
-        } catch (authErr) {
-            if (authErr.code !== 'auth/email-already-in-use') throw authErr;
-        }
+        const userCredential = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
+        await signOut(secondaryAuth);
         await setDoc(doc(db, "usuarios", email), { email, curso, rol: "alumno" });
         return { success: true };
     } catch (e) {
@@ -76,9 +72,26 @@ window.borrarQuiz = async (id) => {
     if(confirm("¿Eliminar cuestionario?")) await deleteDoc(doc(db, "cuestionarios", id));
 };
 
+// NUEVA VERSIÓN: Gestiona la ruta y devuelve éxito para limpiar el formulario
 export async function guardarNuevoQuiz(datos) {
-    return await addDoc(collection(db, "cuestionarios"), {
-        ...datos,
-        fechaCreacion: new Date().toISOString()
-    });
+    try {
+        // Si el usuario no puso el prefijo, lo añadimos aquí
+        let rutaFinal = datos.ruta.trim();
+        if (!rutaFinal.startsWith('cuestionarios/')) {
+            rutaFinal = `cuestionarios/${rutaFinal}`;
+        }
+
+        const nuevoDoc = {
+            titulo: datos.titulo,
+            curso: datos.curso,
+            ruta: rutaFinal,
+            activo: datos.activo
+        };
+
+        await addDoc(collection(db, "cuestionarios"), nuevoDoc);
+        return true; 
+    } catch (e) {
+        console.error("Error en guardarNuevoQuiz:", e);
+        throw e;
+    }
 }
