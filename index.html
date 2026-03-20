@@ -6,21 +6,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; display: flex; justify-content: center; padding-top: 30px; }
-        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 450px; text-align: center; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 550px; text-align: center; }
         input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
         button { width: 100%; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; transition: 0.3s; }
         .btn-primary { background: #007bff; color: white; }
         .btn-admin { background: #28a745; color: white; margin-bottom: 20px; }
-        .btn-admin:hover { background: #218838; }
         .hidden { display: none; }
         #mensaje { color: red; font-size: 14px; margin-top: 10px; }
         
-        /* Estilos de la tabla */
-        .tabla-container { margin-top: 20px; text-align: left; max-height: 300px; overflow-y: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 10px; border: 1px solid #eee; text-align: left; font-size: 14px; }
-        th { background: #f8f9fa; }
+        /* Estilos de la tabla mejorada */
+        .tabla-container { margin-top: 20px; text-align: left; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; }
+        th, td { padding: 12px; border: 1px solid #eee; text-align: left; font-size: 14px; }
+        th { background: #f8f9fa; color: #333; }
         .btn-borrar { background: #dc3545; color: white; padding: 5px 10px; font-size: 12px; width: auto; margin: 0; }
+        .badge-curso { background: #e9ecef; padding: 3px 8px; border-radius: 4px; font-weight: bold; color: #495057; }
     </style>
 </head>
 <body>
@@ -30,28 +30,29 @@
         <h2>Quizs-Evo</h2>
         <input type="email" id="email" placeholder="Correo electrónico">
         <input type="password" id="password" placeholder="Contraseña">
-        <button class="btn-primary" id="btn-login">Entrar / Registrarse</button>
+        <button class="btn-primary" id="btn-login">Entrar</button>
         <p id="mensaje"></p>
     </div>
 
     <div id="app-section" class="hidden">
         <h2>Panel de Control</h2>
-        <p>Sesión iniciada como: <b id="user-email"></b></p>
+        <p>Usuario: <b id="user-email"></b></p>
         
         <div id="admin-tools" class="hidden">
             <hr>
-            <button class="btn-admin" id="btn-importar">📂 Importar Usuarios (CSV)</button>
+            <button class="btn-admin" id="btn-importar">📂 Importar Alumnos (CSV)</button>
+            <p style="font-size: 11px; color: #666;">El CSV debe tener: email, password, curso</p>
             
             <div class="tabla-container">
-                <table id="tabla-usuarios">
+                <table>
                     <thead>
                         <tr>
-                            <th>Email Alumno</th>
+                            <th>Email</th>
+                            <th>Curso</th>
                             <th>Acción</th>
                         </tr>
                     </thead>
-                    <tbody id="cuerpo-tabla">
-                        </tbody>
+                    <tbody id="cuerpo-tabla"></tbody>
                 </table>
             </div>
         </div>
@@ -61,14 +62,10 @@
 </div>
 
 <script type="module">
-    // 1. Importaciones necesarias
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } 
-    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, collection, onSnapshot, deleteDoc } 
-    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, collection, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // 2. Tu configuración (Mantenemos la que nos pasaste)
     const firebaseConfig = {
         apiKey: "AIzaSyBpMD8ezkxeG7qeJHTAgSuXmyX1ma7M7Ng",
         authDomain: "quizs-evo.firebaseapp.com",
@@ -82,63 +79,51 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // --- IMPORTANTE: Pon aquí tu correo para ver el Panel Admin ---
     const CORREO_ADMIN = "sherlockes@gmail.com"; 
 
-    // 3. Lógica de Autenticación
+    // Login
     document.getElementById('btn-login').onclick = async () => {
         const mail = document.getElementById('email').value;
         const pass = document.getElementById('password').value;
-        if(!mail || !pass) { alert("Rellena todos los campos"); return; }
-        
         try {
             await signInWithEmailAndPassword(auth, mail, pass);
         } catch (e) {
-            try {
-                // Si no existe, intenta registrarlo
-                await createUserWithEmailAndPassword(auth, mail, pass);
-            } catch (err) {
-                document.getElementById('mensaje').innerText = "Error: " + err.message;
-            }
+            document.getElementById('mensaje').innerText = "Error: " + e.message;
         }
     };
 
     document.getElementById('btn-logout').onclick = () => signOut(auth);
 
-    // 4. Observador de estado (Gestiona qué se ve en pantalla)
+    // Gestión de interfaz
     onAuthStateChanged(auth, (user) => {
-        const authSec = document.getElementById('auth-section');
-        const appSec = document.getElementById('app-section');
-        const adminTools = document.getElementById('admin-tools');
-
         if (user) {
-            authSec.classList.add('hidden');
-            appSec.classList.remove('hidden');
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('app-section').classList.remove('hidden');
             document.getElementById('user-email').innerText = user.email;
 
             if (user.email === CORREO_ADMIN) {
-                adminTools.classList.remove('hidden');
-                activarTablaUsuarios(); // Carga la tabla si es admin
+                document.getElementById('admin-tools').classList.remove('hidden');
+                cargarTabla();
             }
         } else {
-            authSec.classList.remove('hidden');
-            appSec.classList.add('hidden');
-            adminTools.classList.add('hidden');
+            document.getElementById('auth-section').classList.remove('hidden');
+            document.getElementById('app-section').classList.add('hidden');
         }
     });
 
-    // 5. Lógica de la Tabla y Base de Datos
-    function activarTablaUsuarios() {
+    // Cargar alumnos en tiempo real
+    function cargarTabla() {
         onSnapshot(collection(db, "usuarios"), (snapshot) => {
             const tabla = document.getElementById('cuerpo-tabla');
             tabla.innerHTML = ""; 
-            snapshot.forEach((doc) => {
-                const u = doc.data();
+            snapshot.forEach((docSnap) => {
+                const u = docSnap.data();
                 tabla.innerHTML += `
                     <tr>
                         <td>${u.email}</td>
+                        <td><span class="badge-curso">${u.curso || '---'}</span></td>
                         <td>
-                            <button class="btn-borrar" onclick="borrarUsuario('${doc.id}')">Eliminar</button>
+                            <button class="btn-borrar" onclick="borrarAlumno('${docSnap.id}')">Eliminar</button>
                         </td>
                     </tr>
                 `;
@@ -146,14 +131,13 @@
         });
     }
 
-    // Función global para borrar de la lista
-    window.borrarUsuario = async (id) => {
-        if(confirm("¿Eliminar a " + id + " de la lista?")) {
+    window.borrarAlumno = async (id) => {
+        if(confirm("¿Eliminar a " + id + "?")) {
             await deleteDoc(doc(db, "usuarios", id));
         }
     };
 
-    // 6. Lógica de Importación CSV
+    // Importación CSV con columna CURSO
     const inputArchivo = document.createElement('input');
     inputArchivo.type = 'file';
     inputArchivo.accept = '.csv';
@@ -166,21 +150,22 @@
             header: true,
             skipEmptyLines: true,
             complete: async function(results) {
-                for (let usuario of results.data) {
-                    if(usuario.email && usuario.password) {
+                for (let fila of results.data) {
+                    if(fila.email && fila.password) {
                         try {
-                            // Registra en Auth (para que pueda entrar)
-                            await createUserWithEmailAndPassword(auth, usuario.email, usuario.password);
-                        } catch (e) {} 
+                            // 1. Crear en Auth
+                            await createUserWithEmailAndPassword(auth, fila.email, fila.password);
+                        } catch (err) {}
                         
-                        // Registra en Firestore (para que salga en tu tabla)
-                        await setDoc(doc(db, "usuarios", usuario.email), {
-                            email: usuario.email,
-                            rol: "alumno"
+                        // 2. Guardar en base de datos con CURSO
+                        await setDoc(doc(db, "usuarios", fila.email), {
+                            email: fila.email,
+                            rol: "alumno",
+                            curso: fila.curso || "Sin asignar"
                         });
                     }
                 }
-                alert("Importación completada. Si tu correo en pantalla cambió, cierra sesión y vuelve a entrar como Admin.");
+                alert("Importación finalizada.");
             }
         });
     };
