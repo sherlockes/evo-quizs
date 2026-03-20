@@ -109,12 +109,18 @@
         appId: "1:424341251554:web:84bf886ea4dc965cba45bb"
     };
 
+    // 1. App Principal (Tu sesión)
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+
+    // 2. App Secundaria (Solo para crear alumnos sin cerrar tu sesión)
+    const secondaryApp = initializeApp(firebaseConfig, "Secondary");
+    const secondaryAuth = getAuth(secondaryApp);
+
     const CORREO_ADMIN = "sherlockes@gmail.com";
 
-    // Navegación entre pestañas
+    // Navegación de pestañas (Tab System)
     const btnAlumnos = document.getElementById('tab-btn-alumnos');
     const btnQuizzes = document.getElementById('tab-btn-quizzes');
     const viewAlumnos = document.getElementById('view-alumnos');
@@ -129,7 +135,7 @@
         viewQuizzes.classList.remove('hidden'); viewAlumnos.classList.add('hidden');
     };
 
-    // Auth
+    // Auth Login
     document.getElementById('btn-login').onclick = async () => {
         const m = document.getElementById('email').value;
         const p = document.getElementById('password').value;
@@ -158,7 +164,41 @@
         }
     });
 
-    // Gestión Alumnos
+    // --- LÓGICA DE ALTA MANUAL CORREGIDA ---
+    document.getElementById('btn-crear-manual').onclick = async () => {
+        const email = document.getElementById('m-email').value;
+        const pass = document.getElementById('m-pass').value;
+        const curso = document.getElementById('m-curso').value;
+
+        if(!email || !pass || !curso) return alert("Faltan datos");
+
+        try {
+            // USAMOS secondaryAuth para que NO te desloguee a ti
+            try {
+                await createUserWithEmailAndPassword(secondaryAuth, email, pass);
+                // Cerramos la sesión secundaria inmediatamente para limpiar memoria
+                await signOut(secondaryAuth); 
+            } catch (authErr) {
+                if (authErr.code !== 'auth/email-already-in-use') throw authErr;
+                // Si ya existe en Auth, simplemente seguimos para asegurar que esté en Firestore
+            }
+
+            // Registrar en Firestore (esto siempre se ejecuta)
+            await setDoc(doc(db, "usuarios", email), { email, curso, rol: "alumno" });
+            
+            alert("Alumno gestionado correctamente");
+            
+            // LIMPIEZA DE CAMPOS
+            document.getElementById('m-email').value = "";
+            document.getElementById('m-pass').value = "";
+            document.getElementById('m-curso').value = "";
+
+        } catch(e) { 
+            alert("Error crítico: " + e.message); 
+        }
+    };
+
+    // --- RESTO DE FUNCIONES ---
     function activarAdmin() {
         onSnapshot(collection(db, "usuarios"), (snap) => {
             const t = document.getElementById('cuerpo-tabla');
@@ -180,23 +220,14 @@
     };
     window.borrar = async (id) => { if(confirm("¿Borrar?")) await deleteDoc(doc(db, "usuarios", id)); };
 
-    document.getElementById('btn-crear-manual').onclick = async () => {
-        const email = document.getElementById('m-email').value, pass = document.getElementById('m-pass').value, curso = document.getElementById('m-curso').value;
-        if(!email || !pass || !curso) return alert("Faltan datos");
-        try {
-            await createUserWithEmailAndPassword(auth, email, pass);
-            await setDoc(doc(db, "usuarios", email), { email, curso, rol: "alumno" });
-            alert("Alumno guardado");
-        } catch(e) { alert(e.message); }
-    };
-
+    // Importación CSV (También usa la lógica de no-deslogueo si fuera necesario, pero el CSV suele ser masivo)
     const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.csv';
     document.getElementById('btn-importar').onclick = () => inp.click();
     inp.onchange = (e) => {
         Papa.parse(e.target.files[0], { header: true, complete: async (r) => {
             for (let f of r.data) {
                 if(f.email) {
-                    try { await createUserWithEmailAndPassword(auth, f.email, f.password || "123456"); } catch(ex){}
+                    try { await createUserWithEmailAndPassword(secondaryAuth, f.email, f.password || "123456"); await signOut(secondaryAuth); } catch(ex){}
                     await setDoc(doc(db, "usuarios", f.email), { email: f.email, curso: f.curso || "Gral", rol: "alumno" });
                 }
             }
