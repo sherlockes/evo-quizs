@@ -83,15 +83,26 @@
 
     <div id="section-alumno" class="hidden">
         <div style="background:#e7f3ff; padding:20px; border-radius:8px; text-align: left;">
-            <h2>Panel del Estudiante</h2>
-            <p>Alumno: <b id="alumno-email"></b></p>
-            <p>Curso asignado: <span id="alumno-curso" style="color:blue; font-weight:bold;">...</span></p>
-            <hr>
-            <h4>Mis Exámenes</h4>
-            <div id="lista-examenes">Buscando exámenes para tu curso...</div>
-        </div>
-        <br>
-        <button style="background:#6c757d; color:white; width:100%" class="logout">Cerrar Sesión</button>
+	    <h2>Panel del Estudiante</h2>
+	    <p>Alumno: <b id="alumno-email"></b> | Curso: <span id="alumno-curso" style="color:blue; font-weight:bold;">...</span></p>
+	    <hr>
+
+	    <div id="lista-examenes">
+		<h4>Exámenes Disponibles</h4>
+		<div id="contenedor-links-examenes">Cargando exámenes...</div>
+	    </div>
+
+	    <div id="quiz-activo" class="hidden">
+		<h3 id="quiz-titulo"></h3>
+		<div id="pregunta-container" style="background:white; padding:15px; border-radius:8px; margin-bottom:10px;">
+		    <p id="pregunta-texto" style="font-weight:bold;"></p>
+		    <div id="opciones-container"></div>
+		</div>
+		<button id="btn-siguiente" class="btn-primary" style="display:none;">Siguiente Pregunta</button>
+	    </div>
+	</div>
+	<br>
+	<button style="background:#6c757d; color:white; width:100%" class="logout">Cerrar Sesión</button>
     </div>
 </div>
 
@@ -234,6 +245,94 @@
             alert("CSV cargado");
         }});
     };
+    
+////////////////////////////////////77
+// Variables para el control del examen actual
+let preguntasExamen = [];
+let indicePreguntaActual = 0;
+let aciertos = 0;
+
+// 1. Buscar cuestionarios en Firebase filtrados por el curso del alumno
+async function cargarListaExamenes(cursoAlumno) {
+    const q = query(collection(db, "cuestionarios"), where("curso", "==", cursoAlumno), where("activo", "==", true));
+    
+    onSnapshot(q, (snap) => {
+        const contenedor = document.getElementById('contenedor-links-examenes');
+        contenedor.innerHTML = "";
+        
+        if (snap.empty) {
+            contenedor.innerHTML = "<p>No tienes exámenes asignados por ahora.</p>";
+            return;
+        }
+
+        snap.forEach(docSnap => {
+            const quiz = docSnap.data();
+            const btn = document.createElement('button');
+            btn.innerText = `📝 ${quiz.nombre}`;
+            btn.className = "btn-primary";
+            btn.style.marginBottom = "10px";
+            btn.onclick = () => iniciarExamen(quiz.url_json); // Aquí usa la ruta relativa
+            contenedor.appendChild(btn);
+        });
+    });
+}
+
+// 2. Leer el archivo JSON y empezar el quiz
+async function iniciarExamen(rutaRelativa) {
+    try {
+        const response = await fetch(rutaRelativa);
+        preguntasExamen = await response.json();
+        
+        // Ocultar lista y mostrar contenedor de preguntas
+        document.getElementById('lista-examenes').classList.add('hidden');
+        document.getElementById('quiz-activo').classList.remove('hidden');
+        
+        indicePreguntaActual = 0;
+        aciertos = 0;
+        mostrarPregunta();
+    } catch (e) {
+        alert("Error al cargar el archivo del examen: " + e.message);
+    }
+}
+
+function mostrarPregunta() {
+    const p = preguntasExamen[indicePreguntaActual];
+    document.getElementById('pregunta-texto').innerText = p.pregunta;
+    const contenedorOpciones = document.getElementById('opciones-container');
+    contenedorOpciones.innerHTML = "";
+
+    p.opciones.forEach((opcion, i) => {
+        const btn = document.createElement('button');
+        btn.innerText = opcion;
+        btn.style = "display:block; width:100%; text-align:left; padding:10px; margin:5px 0; background:#f8f9fa; border:1px solid #ddd; cursor:pointer;";
+        btn.onclick = () => verificarRespuesta(i);
+        contenedorOpciones.appendChild(btn);
+    });
+}
+
+function verificarRespuesta(indiceSeleccionado) {
+    const p = preguntasExamen[indicePreguntaActual];
+    if (indiceSeleccionado === p.respuestaCorrecta) {
+        aciertos++;
+        alert("¡Correcto! " + p.explicacion);
+    } else {
+        alert("Incorrecto. La respuesta era: " + p.opciones[p.respuestaCorrecta] + "\n\n" + p.explicacion);
+    }
+
+    indicePreguntaActual++;
+    if (indicePreguntaActual < preguntasExamen.length) {
+        mostrarPregunta();
+    } else {
+        finalizarExamen();
+    }
+}
+
+function finalizarExamen() {
+    alert(`Has terminado. Puntuación: ${aciertos} de ${preguntasExamen.length}`);
+    document.getElementById('lista-examenes').classList.remove('hidden');
+    document.getElementById('quiz-activo').classList.add('hidden');
+}
+    
 </script>
 </body>
 </html>
