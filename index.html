@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Quizs-Evo | Login</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; display: flex; justify-content: center; padding-top: 50px; }
-        .container { background: white; padding: 30px; border-radius: 12px; shadow: 0 10px 25px rgba(0,0,0,0.1); width: 350px; text-align: center; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 350px; text-align: center; }
         input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
         button { width: 100%; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
         .btn-primary { background: #007bff; color: white; }
@@ -21,8 +22,7 @@
         <h2 id="titulo">Bienvenido</h2>
         <input type="email" id="email" placeholder="Tu correo">
         <input type="password" id="password" placeholder="Tu contraseña">
-        <button class="btn-primary" id="btn-login">Entrar</button>
-        <button style="background:none; color:#007bff; border:none; text-decoration:underline;" id="btn-switch">¿No tienes cuenta? Regístrate</button>
+        <button class="btn-primary" id="btn-login">Entrar / Registrarse</button>
         <p id="mensaje"></p>
     </div>
 
@@ -33,7 +33,7 @@
         <div id="admin-tools" class="hidden">
             <hr>
             <h3>Panel de Control</h3>
-            <button class="btn-admin" onclick="importarCSV()">Importar Usuarios desde CSV</button>
+            <button class="btn-admin" id="btn-importar">Importar Usuarios desde CSV</button>
         </div>
 
         <button style="background:#dc3545; color:white;" id="btn-logout">Cerrar Sesión</button>
@@ -45,7 +45,6 @@
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } 
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // Tu configuración oficial
     const firebaseConfig = {
         apiKey: "AIzaSyBpMD8ezkxeG7qeJHTAgSuXmyX1ma7M7Ng",
         authDomain: "quizs-evo.firebaseapp.com",
@@ -58,13 +57,15 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // --- CAMBIA ESTO POR TU CORREO PARA SER EL JEFE ---
-    const CORREO_ADMIN = "sherlockes@gmail.com"; 
+    // Tu correo de administrador
+    const CORREO_ADMIN = "sherlockes@gmail.com";
 
-    // Lógica de Botones
+    // Lógica de Login
     document.getElementById('btn-login').onclick = async () => {
         const mail = document.getElementById('email').value;
         const pass = document.getElementById('password').value;
+        if(!mail || !pass) return;
+        
         try {
             await signInWithEmailAndPassword(auth, mail, pass);
         } catch (e) {
@@ -78,57 +79,48 @@
 
     document.getElementById('btn-logout').onclick = () => signOut(auth);
 
-    // Observador: Detecta quién entra y quién sale
     onAuthStateChanged(auth, (user) => {
         if (user) {
             document.getElementById('auth-section').classList.add('hidden');
             document.getElementById('app-section').classList.remove('hidden');
             document.getElementById('user-email').innerText = user.email;
 
-            // Si el correo coincide, mostramos herramientas de Admin
             if (user.email === CORREO_ADMIN) {
                 document.getElementById('admin-tools').classList.remove('hidden');
             }
         } else {
             document.getElementById('auth-section').classList.remove('hidden');
             document.getElementById('app-section').classList.add('hidden');
+            document.getElementById('mensaje').innerText = "";
         }
     });
 
-    // Importamos la herramienta para leer CSV
-    import "https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js";
-
-    // Creamos un botón invisible para elegir el archivo
+    // --- LÓGICA DE IMPORTACIÓN ---
     const inputArchivo = document.createElement('input');
     inputArchivo.type = 'file';
     inputArchivo.accept = '.csv';
 
-    // Esta función se activa cuando el Admin hace clic en el botón verde
-    window.importarCSV = function() {
-        inputArchivo.click(); // Abre la ventana para elegir el archivo
-    };
+    document.getElementById('btn-importar').onclick = () => inputArchivo.click();
 
     inputArchivo.onchange = (e) => {
         const archivo = e.target.files[0];
-        
-        // PapaParse lee el archivo
         Papa.parse(archivo, {
-            header: true, // Esto significa que la primera fila tiene los títulos (email, password)
+            header: true,
+            skipEmptyLines: true,
             complete: async function(results) {
-                console.log("Datos leídos:", results.data);
-                
+                console.log("Iniciando importación...");
                 for (let usuario of results.data) {
                     if(usuario.email && usuario.password) {
                         try {
-                            // Creamos al usuario en Firebase
+                            // Nota: Esto creará los usuarios en Firebase
                             await createUserWithEmailAndPassword(auth, usuario.email, usuario.password);
-                            console.log("Creado con éxito: " + usuario.email);
+                            console.log("Creado: " + usuario.email);
                         } catch (error) {
-                            console.error("Error con " + usuario.email + ": " + error.message);
+                            console.log("Aviso: " + usuario.email + " ya existe o tiene error.");
                         }
                     }
                 }
-                alert("Proceso de importación finalizado. Revisa la consola (F12) para ver detalles.");
+                alert("Importación finalizada. ¡No olvides cerrar sesión y volver a entrar como Admin si tu correo cambió en pantalla!");
             }
         });
     };
