@@ -69,13 +69,37 @@
         </div>
 
         <div id="view-quizzes" class="admin-content hidden">
-            <h4>Cuestionarios Disponibles</h4>
-            <p style="color:#666; font-size: 14px;">Aquí podrás gestionar tus exámenes JSON.</p>
-            <button style="background:#6f42c1; color:white; width:100%" id="btn-subir-json">📤 Subir Nuevo Cuestionario (JSON)</button>
-            <div class="tabla-container">
-                <p>No hay cuestionarios cargados todavía.</p>
-            </div>
+    <h4 style="margin-top:0;">🚀 Registrar Nuevo Cuestionario</h4>
+    <div class="form-manual" style="background: #f0f4f8; border: 1px solid #d1d9e0;">
+        <div class="flex-row">
+            <input type="text" id="q-titulo" placeholder="Título (ej: Contaminación Atmosférica)" style="width: 60%;">
+            <input type="text" id="q-curso" placeholder="Curso (ej: 1A)" style="width: 35%;">
         </div>
+        <input type="text" id="q-ruta" placeholder="Ruta relativa (ej: cuestionarios/contaminacion.json)">
+        
+        <div style="text-align: left; margin: 10px 0; display: flex; align-items: center; gap: 10px;">
+            <input type="checkbox" id="q-activo" checked style="width: auto; margin: 0;">
+            <label for="q-activo" style="font-size: 14px; cursor: pointer;">¿Habilitar cuestionario ahora?</label>
+        </div>
+        
+        <button class="btn-primary" id="btn-guardar-quiz" style="background: #6f42c1;">Registrar Cuestionario</button>
+    </div>
+
+    <h4>Cuestionarios en el Sistema</h4>
+    <div class="tabla-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Curso</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-quizzes"></tbody>
+        </table>
+    </div>
+</div>
 
         <br>
         <button style="background:#6c757d; color:white; width:100%" class="logout">Cerrar Sesión Admin</button>
@@ -332,6 +356,68 @@ function finalizarExamen() {
     document.getElementById('lista-examenes').classList.remove('hidden');
     document.getElementById('quiz-activo').classList.add('hidden');
 }
+
+// Función para guardar cuestionario
+document.getElementById('btn-guardar-quiz').onclick = async () => {
+    const titulo = document.getElementById('q-titulo').value;
+    const curso = document.getElementById('q-curso').value;
+    const ruta = document.getElementById('q-ruta').value;
+    const activo = document.getElementById('q-activo').checked; // Captura el Checkbox
+
+    if(!titulo || !curso || !ruta) return alert("Por favor, rellena todos los campos");
+
+    try {
+        // Guardamos en una nueva colección "cuestionarios"
+        await addDoc(collection(db, "cuestionarios"), {
+            titulo: titulo,
+            curso: curso,
+            ruta: ruta,
+            activo: activo,
+            fechaCreacion: new Date().toISOString()
+        });
+
+        alert("¡Cuestionario añadido correctamente!");
+        
+        // Limpiar formulario
+        document.getElementById('q-titulo').value = "";
+        document.getElementById('q-curso').value = "";
+        document.getElementById('q-ruta').value = "";
+        document.getElementById('q-activo').checked = true;
+
+    } catch (e) {
+        alert("Error al guardar: " + e.message);
+    }
+};
+
+// Función para listar cuestionarios en la tabla de Admin
+onSnapshot(collection(db, "cuestionarios"), (snap) => {
+    const tabla = document.getElementById('tabla-quizzes');
+    tabla.innerHTML = "";
+    snap.forEach(docSnap => {
+        const q = docSnap.data();
+        const id = docSnap.id;
+        tabla.innerHTML += `
+            <tr>
+                <td>${q.titulo}</td>
+                <td><b>${q.curso}</b></td>
+                <td>${q.activo ? '<span style="color:green">✅ Activo</span>' : '<span style="color:red">❌ Desactivado</span>'}</td>
+                <td>
+                    <button class="btn-accion btn-edit" onclick="alternarEstado('${id}', ${q.activo})">On/Off</button>
+                    <button class="btn-accion btn-borrar" onclick="borrarQuiz('${id}')">X</button>
+                </td>
+            </tr>`;
+    });
+});
+
+window.alternarEstado = async (id, estadoActual) => {
+    await updateDoc(doc(db, "cuestionarios", id), { activo: !estadoActual });
+};
+
+window.borrarQuiz = async (id) => {
+    if(confirm("¿Seguro que quieres eliminar este cuestionario?")) {
+        await deleteDoc(doc(db, "cuestionarios", id));
+    }
+};			       
     
 </script>
 </body>
