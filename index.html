@@ -117,7 +117,7 @@
             complete: async function(results) {
                 console.log("Datos leídos:", results.data);
                 
-                for (let usuario de results.data) {
+                for (let usuario of results.data) {
                     if(usuario.email && usuario.password) {
                         try {
                             // Creamos al usuario en Firebase
