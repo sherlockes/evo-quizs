@@ -220,6 +220,17 @@
             alert("Error: " + e.message);
         }
     };
+
+    window.mostrarTab = (tabId) => {
+        // Ocultar todos los contenidos
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+        // Quitar clase active de todos los botones
+        document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('active'));
+        
+        // Mostrar el seleccionado
+        document.getElementById(tabId).classList.remove('hidden');
+        // Activar botón (puedes añadir lógica para buscar el botón si quieres)
+    };
 </script>
 </body>
 </html>
