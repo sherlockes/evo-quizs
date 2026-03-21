@@ -126,8 +126,11 @@
                 <button class="btn-primary" id="btn-crear-manual">Guardar Usuario</button>
             </div>
 
-            <button style="background:#28a745; color:white; width:100%" id="btn-importar">📂 Importar CSV</button>
-            <input type="file" id="csv-input" accept=".csv" style="display: none;">            
+            <div class="flex-row" style="margin-top: 10px;">
+                <button style="background:#28a745; color:white; flex: 1;" id="btn-importar">📂 Importar CSV</button>
+                <button style="background:#dc3545; color:white; flex: 1;" id="btn-borrar-todo">⚠️ Borrar Alumnos</button>
+            </div>
+            <input type="file" id="csv-input" accept=".csv" style="display: none;">          
 
             <div class="tabla-container">
                 <table>
