@@ -150,14 +150,11 @@ window.editarInfoQuiz = async (id, tituloActual, cursoActual, rutaActual, activo
     const nuevaRuta = prompt("Ruta del archivo:", rutaActual);
     if (nuevaRuta === null) return;
 
-    const nuevoEstado = confirm(`El cuestionario está actualmente ${activoActual ? 'ACTIVO' : 'DESACTIVADO'}. ¿Deseas que esté ACTIVO?`);
-
     try {
         await updateDoc(doc(db, "cuestionarios", id), {
             titulo: nuevoTitulo,
             curso: nuevoCurso,
-            ruta: nuevaRuta,
-            activo: nuevoEstado
+            ruta: nuevaRuta
         });
     } catch (e) {
         alert("Error al actualizar: " + e.message);
