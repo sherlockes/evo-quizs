@@ -4,7 +4,6 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// --- VARIABLES DEL EDITOR ---
 let quizEnEdicion = [];
 
 // --- GESTIÓN DE ALUMNOS ---
@@ -24,24 +23,6 @@ export function activarSincronizacionAlumnos() {
     });
 }
 
-window.editarAlumno = async (id, c) => {
-    const n = prompt("Nuevo curso:", c);
-    if(n) await updateDoc(doc(db, "usuarios", id), { curso: n });
-};
-
-window.borrarAlumno = async (id) => {
-    if(confirm("¿Eliminar alumno?")) await deleteDoc(doc(db, "usuarios", id));
-};
-
-export async function crearAlumnoManual(email, pass, curso) {
-    try {
-        await createUserWithEmailAndPassword(secondaryAuth, email, pass);
-        await signOut(secondaryAuth);
-        await setDoc(doc(db, "usuarios", email), { email, curso, rol: "alumno" });
-        return true;
-    } catch (e) { throw e; }
-}
-
 // --- GESTIÓN DE CUESTIONARIOS ---
 export function activarSincronizacionQuizzes() {
     onSnapshot(collection(db, "cuestionarios"), (snap) => {
@@ -56,7 +37,8 @@ export function activarSincronizacionQuizzes() {
                     <td>${q.titulo}</td>
                     <td><b>${q.curso}</b></td>
                     <td>${q.activo ? '✅' : '❌'}</td>
-                    <td>
+                    <td style="white-space: nowrap;">
+                        <button class="btn-accion" style="background:#6f42c1; color:white;" onclick="cargarQuizAlEditor('${q.ruta}')">✏️</button>
                         <button class="btn-accion btn-edit" onclick="alternarEstadoQuiz('${id}', ${q.activo})">On/Off</button>
                         <button class="btn-accion btn-borrar" onclick="borrarQuiz('${id}')">X</button>
                     </td>
@@ -65,84 +47,90 @@ export function activarSincronizacionQuizzes() {
     });
 }
 
+// Función para cargar un archivo JSON existente al editor
+window.cargarQuizAlEditor = async (ruta) => {
+    try {
+        const response = await fetch(ruta);
+        if (!response.ok) throw new Error("No se pudo encontrar el archivo JSON en el servidor.");
+        quizEnEdicion = await response.json();
+        
+        // Cambiamos a la pestaña del editor y renderizamos
+        document.getElementById('tab-btn-editor').click();
+        renderizarEditor();
+        alert("Cuestionario cargado en el editor");
+    } catch (e) {
+        alert("Error al cargar: " + e.message);
+    }
+};
+
 window.alternarEstadoQuiz = async (id, estado) => {
     await updateDoc(doc(db, "cuestionarios", id), { activo: !estado });
 };
 
 window.borrarQuiz = async (id) => {
-    if(confirm("¿Eliminar cuestionario?")) await deleteDoc(doc(db, "cuestionarios", id));
+    if(confirm("¿Eliminar cuestionario del sistema?")) await deleteDoc(doc(db, "cuestionarios", id));
 };
 
 export async function guardarNuevoQuiz(datos) {
     try {
-        let rutaFinal = datos.ruta.trim();
-        if (!rutaFinal.startsWith('cuestionarios/')) {
-            rutaFinal = `cuestionarios/${rutaFinal}`;
-        }
-        await addDoc(collection(db, "cuestionarios"), {
-            titulo: datos.titulo,
-            curso: datos.curso,
-            ruta: rutaFinal,
-            activo: datos.activo
-        });
+        let r = datos.ruta.trim();
+        if (!r.startsWith('cuestionarios/')) r = `cuestionarios/${r}`;
+        await addDoc(collection(db, "cuestionarios"), { ...datos, ruta: r });
         return true;
     } catch (e) { throw e; }
 }
 
-// --- LÓGICA DEL EDITOR JSON ---
+// --- LÓGICA DEL EDITOR JSON (DISEÑO COMPACTO) ---
 export function renderizarEditor() {
     const contenedor = document.getElementById('lista-preguntas-editor');
     if (!contenedor) return;
     contenedor.innerHTML = "";
 
     if (quizEnEdicion.length === 0) {
-        contenedor.innerHTML = '<p style="text-align:center; color:#999; padding:40px;">Cuestionario vacío. Añade una pregunta para empezar.</p>';
+        contenedor.innerHTML = '<p style="text-align:center; color:#999; padding:20px;">Cuestionario vacío.</p>';
         return;
     }
 
     quizEnEdicion.forEach((item, index) => {
         const div = document.createElement('div');
         div.className = "pregunta-edit";
-        div.id = `pregunta-id-${index}`; // ID para el scroll automático
+        div.id = `preg-${index}`;
         
         div.innerHTML = `
             <div class="editor-header-fila">
-                <span class="editor-num">#${index + 1}</span>
-                <input type="text" class="editor-enunciado-input" placeholder="Escribe el enunciado de la pregunta..." value="${item.pregunta}" onchange="actualizarDato(${index}, 'pregunta', this.value)">
-                <button class="btn-borrar-compact" onclick="borrarPreguntaEditor(${index})" title="Eliminar pregunta">✕</button>
+                <span class="editor-num">${index + 1}</span>
+                <input type="text" class="editor-enunciado-input" placeholder="Pregunta..." value="${item.pregunta}" onchange="actualizarDato(${index}, 'pregunta', this.value)">
+                <button class="btn-borrar-compact" onclick="borrarPreguntaEditor(${index})">✕</button>
             </div>
             
-            <div class="editor-opciones-container">
+            <div class="editor-opciones-columna">
                 ${item.opciones.map((opt, i) => `
                     <div class="opcion-fila">
-                        <input type="radio" name="correcta-${index}" ${item.respuestaCorrecta === i ? 'checked' : ''} onchange="actualizarDato(${index}, 'respuestaCorrecta', ${i})" title="Marcar como correcta">
+                        <input type="radio" name="correcta-${index}" ${item.respuestaCorrecta === i ? 'checked' : ''} onchange="actualizarDato(${index}, 'respuestaCorrecta', ${i})">
                         <input type="text" placeholder="Opción ${i+1}" value="${opt}" onchange="actualizarOpcion(${index}, ${i}, this.value)">
                     </div>
                 `).join('')}
             </div>
             
-            <div style="padding-left: 40px;">
-                <textarea placeholder="Explicación pedagógica (opcional)..." onchange="actualizarDato(${index}, 'explicacion', this.value)">${item.explicacion || ''}</textarea>
+            <div style="padding-left: 35px;">
+                <textarea placeholder="Explicación..." onchange="actualizarDato(${index}, 'explicacion', this.value)">${item.explicacion || ''}</textarea>
             </div>
         `;
         contenedor.appendChild(div);
     });
 }
+
 window.actualizarDato = (i, campo, valor) => { quizEnEdicion[i][campo] = valor; };
 window.actualizarOpcion = (pIndex, oIndex, valor) => { quizEnEdicion[pIndex].opciones[oIndex] = valor; };
 
 window.nuevaPregunta = () => {
     quizEnEdicion.push({ pregunta: "", opciones: ["", "", "", ""], respuestaCorrecta: 0, explicacion: "" });
     renderizarEditor();
-
-    // SCROLL AUTOMÁTICO:
-    // Esperamos un momento a que el navegador dibuje la nueva pregunta
     setTimeout(() => {
-        const ultimaPregunta = document.getElementById(`pregunta-id-${quizEnEdicion.length - 1}`);
-        if (ultimaPregunta) {
-            ultimaPregunta.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            // Ponemos el foco en el input de la nueva pregunta para empezar a escribir ya
-            ultimaPregunta.querySelector('input[type="text"]').focus();
+        const el = document.getElementById(`preg-${quizEnEdicion.length - 1}`);
+        if(el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            el.querySelector('input').focus();
         }
     }, 100);
 };
@@ -164,11 +152,9 @@ window.descargarJSON = () => {
 document.addEventListener('change', e => {
     if (e.target.id === 'importar-json') {
         const reader = new FileReader();
-        reader.onload = (event) => {
-            try {
-                quizEnEdicion = JSON.parse(event.target.result);
-                renderizarEditor();
-            } catch(e) { alert("Error al leer el JSON"); }
+        reader.onload = (ev) => {
+            quizEnEdicion = JSON.parse(ev.target.result);
+            renderizarEditor();
         };
         reader.readAsText(e.target.files[0]);
     }

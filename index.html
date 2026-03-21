@@ -75,6 +75,25 @@
         /* Explicación Compacta */
         .pregunta-edit textarea { height: 40px; margin: 0; padding: 8px; font-size: 0.85rem; background: #fafafa; border-style: dashed;}
         .pregunta-edit textarea:focus { background: #fff; border-style: solid;}
+
+        .container { width: 800px; min-height: 400px; margin-bottom: 50px; } /* Más ancho y margen inferior */
+
+        /* ALTURAS AUMENTADAS */
+        .tabla-container { max-height: 800px; } 
+        #lista-preguntas-editor { max-height: 1200px; overflow-y: auto; padding-right: 10px; }
+
+        /* DISEÑO COMPACTO EDITOR */
+        .pregunta-edit { background: #fff; padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #ddd; text-align: left; }
+        .editor-header-fila { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .editor-num { font-weight: bold; color: #007bff; min-width: 25px; font-size: 1.1rem; }
+        .editor-enunciado-input { flex: 1; margin: 0 !important; font-weight: 600; }
+        .btn-borrar-compact { background: none; color: #dc3545; font-size: 18px; padding: 0 5px; margin: 0; }
+        
+        .editor-opciones-columna { padding-left: 35px; display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+        .opcion-fila { display: flex; align-items: center; gap: 8px; }
+        .opcion-fila input[type="text"] { margin: 0 !important; padding: 6px !important; font-size: 0.9rem !important; }
+        
+        textarea { height: 45px; font-size: 0.85rem; border-style: dashed; }
     </style>
 </head>
 <body>
