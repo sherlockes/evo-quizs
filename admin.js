@@ -225,7 +225,38 @@ window.cargarQuizAlEditor = async (ruta) => {
 
 
 window.borrarQuiz = async (id) => {
-    if(confirm("¿Eliminar del sistema?")) await deleteDoc(doc(db, "cuestionarios", id));
+    if (!confirm("¿Eliminar cuestionario y todos sus resultados históricos? Esta acción es irreversible.")) return;
+
+    try {
+        // 1. Obtenemos los datos del cuestionario antes de borrarlo para saber su ruta
+        const docRef = doc(db, "cuestionarios", id);
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+            const rutaExamen = docSnap.data().ruta;
+
+            // 2. Buscamos todos los resultados asociados a esa ruta
+            const q = query(collection(db, "resultados"), where("quizRuta", "==", rutaExamen));
+            const resultadosSnap = await getDocs(q);
+
+            // 3. Borramos los resultados uno a uno (o por lotes)
+            const promesasBorrado = [];
+            resultadosSnap.forEach((resDoc) => {
+                promesasBorrado.push(deleteDoc(doc(db, "resultados", resDoc.id)));
+            });
+
+            await Promise.all(promesasBorrado);
+            console.log(`Se han eliminado ${promesasBorrado.length} resultados asociados.`);
+        }
+
+        // 4. Finalmente, borramos el cuestionario
+        await deleteDoc(docRef);
+        alert("Cuestionario y resultados eliminados correctamente.");
+
+    } catch (e) {
+        console.error("Error al eliminar el cuestionario completo:", e);
+        alert("Error al eliminar: " + e.message);
+    }
 };
 
 export async function guardarNuevoQuiz(datos) {
