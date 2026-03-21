@@ -8,6 +8,7 @@ import { createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com
 
 // Variable global para el editor
 let quizEnEdicion = [];
+let idQuizActual = null;
 
 // --- GESTIÓN DE ALUMNOS (Con ordenado por Curso y Email) ---
 export function activarSincronizacionAlumnos() {
@@ -101,7 +102,6 @@ export async function crearAlumnoManual(email, pass, curso) {
 }
 
 // --- GESTIÓN DE CUESTIONARIOS ---
-// --- GESTIÓN DE CUESTIONARIOS ---
 export function activarSincronizacionQuizzes() {
     onSnapshot(collection(db, "cuestionarios"), (snap) => {
         const tabla = document.getElementById('tabla-quizzes');
@@ -110,8 +110,6 @@ export function activarSincronizacionQuizzes() {
         snap.forEach(docSnap => {
             const q = docSnap.data();
             const id = docSnap.id;
-            
-            // Definimos el color del check: verde si está activo, gris si no
             const colorCheck = q.activo ? "#28a745" : "#6c757d";
 
             tabla.innerHTML += `
@@ -120,17 +118,17 @@ export function activarSincronizacionQuizzes() {
                     <td><b>${q.curso}</b></td>
                     <td style="text-align:center;">${q.activo ? '✅' : '❌'}</td>
                     <td style="white-space: nowrap;">
-                        <button class="btn-accion" style="background:#607d8b; color:white;" 
-                            onclick="verResultadosQuiz('${q.ruta}', '${q.titulo}')">📊</button>
+                        <button class="btn-accion" style="background:#546e7a; color:white;" 
+                            onclick="verResultadosQuiz('${id}', '${q.titulo}')">📊</button>
                         
-                        <button class="btn-accion" style="background:#607d8b; color:white;" 
+                        <button class="btn-accion" style="background:#546e7a; color:white;" 
                             onclick="editarInfoQuiz('${id}', '${q.titulo}', '${q.curso}', '${q.ruta}', ${q.activo})">🏷️</button>
                         
-                        <button class="btn-accion" style="background:#607d8b; color:white;" 
-                            onclick="cargarQuizAlEditor('${q.ruta}')">✏️</button>
+                        <button class="btn-accion" style="background:#546e7a; color:white;" 
+                            onclick="cargarQuizAlEditor('${id}')">✏️</button>
                         
                         <button class="btn-accion" style="background:${colorCheck}; color:white;" 
-                            onclick="alternarEstadoQuiz('${id}', ${q.activo})" title="Activar/Desactivar">✔️</button>
+                            onclick="alternarEstadoQuiz('${id}', ${q.activo})">✔️</button>
                         
                         <button class="btn-accion btn-borrar" onclick="borrarQuiz('${id}')">X</button>
                     </td>
@@ -214,24 +212,41 @@ window.alternarEstadoQuiz = async (id, estado) => {
     await updateDoc(doc(db, "cuestionarios", id), { activo: !estado });
 };
 
-// Esta función permite cargar un JSON que ya está en GitHub/Vercel al editor
-window.cargarQuizAlEditor = async (ruta) => {
+// Carga DIRECTA desde Firestore
+window.cargarQuizAlEditor = async (id) => {
     try {
-        const response = await fetch(ruta);
-        if (!response.ok) throw new Error("No se pudo cargar el archivo. ¿Está subido a GitHub?");
-        quizEnEdicion = await response.json();
+        idQuizActual = id;
+        const docRef = doc(db, "cuestionarios", id);
+        const docSnap = await getDoc(docRef);
         
-        // Abrimos la pestaña del editor (Simulamos click en el botón del HTML)
-        const btnEditor = document.getElementById('tab-btn-editor');
-        if(btnEditor) btnEditor.click();
-        
-        renderizarEditor();
+        if (docSnap.exists()) {
+            const datos = docSnap.data();
+            // Si el quiz es nuevo y no tiene preguntas aún, inicializamos array vacío
+            quizEnEdicion = datos.preguntas || [];
+            
+            document.getElementById('tab-btn-editor').click();
+            renderizarEditor();
+        }
     } catch (e) {
-        alert("Error: " + e.message);
+        alert("Error al acceder a la base de datos: " + e.message);
     }
 };
 
-
+// Guardado DIRECTO en Firestore
+window.guardarEnNube = async () => {
+    if (!idQuizActual) return alert("Selecciona un cuestionario de la lista primero.");
+    
+    try {
+        const docRef = doc(db, "cuestionarios", idQuizActual);
+        await updateDoc(docRef, {
+            preguntas: quizEnEdicion,
+            ultimaModificacion: new Date()
+        });
+        alert("✅ Cambios guardados en Firebase correctamente.");
+    } catch (e) {
+        alert("Error al guardar: " + e.message);
+    }
+};
 
 window.borrarQuiz = async (id) => {
     if (!confirm("¿Eliminar cuestionario y todos sus resultados históricos? Esta acción es irreversible.")) return;

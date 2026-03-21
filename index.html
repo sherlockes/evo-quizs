@@ -176,10 +176,12 @@
         <div id="view-editor" class="admin-content hidden">
             <h4>Editor de Archivos JSON</h4>
             <div style="display: flex; gap: 5px; margin-bottom: 15px;">
-                <input type="file" id="importar-json" accept=".json" style="display:none">
-                <button style="background:#6c757d; color:white; flex:1;" onclick="document.getElementById('importar-json').click()">📂 Importar</button>
+                <button style="background:#6c757d; color:white; flex:1;" onclick="document.getElementById('importar-json').click()">📂 Importar PC</button>
                 <button style="background:#28a745; color:white; flex:1;" onclick="nuevaPregunta()">➕ Pregunta</button>
-                <button style="background:#007bff; color:white; flex:1;" onclick="descargarJSON()">💾 Descargar</button>
+                
+                <button style="background:#007bff; color:white; flex:2; font-weight:bold;" onclick="guardarEnNube()">💾 GUARDAR CAMBIOS</button>
+                
+                <button style="background:#adb5bd; color:white; flex:1;" onclick="descargarJSON()">📥 Backup</button>
             </div>
             <div id="lista-preguntas-editor" style="max-height: 400px; overflow-y: auto;">
                 <p style="text-align:center; color:#999;">Importa un archivo o añade una pregunta para empezar.</p>

@@ -1,5 +1,5 @@
 import { db, auth } from './config.js';
-import { collection, query, where, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { collection, query, where, onSnapshot, addDoc, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 let preguntasActuales = [];
 let indicePregunta = 0;
@@ -18,17 +18,14 @@ export function cargarListaExamenes(cursoAlumno) {
         
         snapshot.forEach((docSnap) => {
             const quiz = docSnap.data();
-            const div = document.createElement('div');
-            div.style = "background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; border-left: 5px solid #007bff; display: flex; justify-content: space-between; align-items: center;";
+            const id = docSnap.id; // Usamos el ID de Firebase
             
-            // --- CORRECCIÓN AQUÍ ---
-            // Tenemos que pasar 'quiz.ruta' y 'quiz.titulo' como strings (entre comillas simples)
+            const div = document.createElement('div');
+            div.className = "quiz-card"; // Usa tus estilos de antes
             div.innerHTML = `
-                <span style="font-weight: bold; color: #333;">${quiz.titulo}</span>
-                <button class="btn-primary" style="width: auto; margin: 0; padding: 8px 20px;" 
-                    onclick="iniciarExamen('${quiz.ruta}', '${quiz.titulo}')">
-                    Comenzar
-                </button>
+                <span>${quiz.titulo}</span>
+                <button class="btn-primary" style="width: auto; margin:0;" 
+                    onclick="iniciarExamen('${id}', '${quiz.titulo}')">Comenzar</button>
             `;
             contenedor.appendChild(div);
         });
@@ -36,25 +33,29 @@ export function cargarListaExamenes(cursoAlumno) {
 }
 
 // Asegúrate de que la función iniciarExamen reciba los dos parámetros
-window.iniciarExamen = async (ruta, titulo) => {
+window.iniciarExamen = async (id, titulo) => {
     try {
-        const response = await fetch(ruta);
-        if (!response.ok) throw new Error("No se pudo cargar el JSON");
+        // Pedimos los datos del cuestionario por su ID
+        const docSnap = await getDoc(doc(db, "cuestionarios", id));
         
-        preguntasActuales = await response.json();
-        
-        // Guardamos los datos para el registro final
-        rutaExamenActual = ruta;
-        tituloExamenActual = titulo;
-        
-        indicePregunta = 0;
-        puntuacion = 0;
-        startTime = Date.now(); // Iniciar cronómetro
-        
-        mostrarPregunta();
+        if (docSnap.exists()) {
+            const datos = docSnap.data();
+            preguntasActuales = datos.preguntas || [];
+            
+            if (preguntasActuales.length === 0) {
+                return alert("Este cuestionario aún no tiene preguntas configuradas.");
+            }
+
+            idExamenActual = id; // Guardamos el ID para los resultados
+            tituloExamenActual = titulo;
+            indicePregunta = 0;
+            puntuacion = 0;
+            startTime = Date.now();
+            
+            mostrarPregunta();
+        }
     } catch (e) {
-        console.error(e);
-        alert("Error al cargar el cuestionario: " + e.message);
+        alert("Error al conectar con la base de datos.");
     }
 };
 
