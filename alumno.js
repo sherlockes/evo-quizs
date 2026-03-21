@@ -1,5 +1,5 @@
 import { db, auth } from './config.js';
-import { collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { collection, query, where, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 let preguntasActuales = [];
 let indicePregunta = 0;
