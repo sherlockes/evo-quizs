@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Quizs-Evo | Sistema de Gestión</title>
+    <title>Quizs-Evo | Gestión</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; display: flex; justify-content: center; padding-top: 20px; }
@@ -12,7 +12,7 @@
         .btn-primary { background: #007bff; color: white; width: 100%; }
         .btn-tab { background: #eee; color: #555; width: 48%; margin-bottom: 20px; font-size: 16px; }
         .btn-tab.active { background: #007bff; color: white; }
-        .hidden { display: none; }
+        .hidden { display: none !important; }
         .admin-content { text-align: left; padding: 15px; border: 1px solid #eee; border-radius: 8px; }
         .form-manual { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
         .flex-row { display: flex; gap: 10px; }
@@ -20,86 +20,40 @@
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 10px; border: 1px solid #eee; font-size: 13px; text-align: left; }
         th { background: #f1f1f1; }
-        .btn-accion { padding: 4px 8px; font-size: 11px; width: auto; margin-right: 5px; }
+        .btn-accion { padding: 4px 8px; font-size: 11px; width: auto; margin: 2px; }
         .btn-edit { background: #ffc107; }
         .btn-borrar { background: #dc3545; color: white; }
-        .btn-opcion:hover:not(:disabled) {
-            background: #f0f7ff !important;
-            border-color: #007bff !important;
-            cursor: pointer;
-        }
-        .btn-opcion:disabled {
-            cursor: default;
-        }
-        /* Estilos para el Editor Integrado */
-        .editor-card { 
-            background: #f9f9f9; 
-            padding: 20px; 
-            border-radius: 8px; 
-            border: 1px solid #ddd; 
-            margin-top: 20px; 
-            text-align: left;
-        }
-        .pregunta-edit {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .pregunta-edit input, .pregunta-edit textarea {
-            margin-bottom: 10px;
-            font-size: 0.9rem;
-        }
-        .btn-delete-preg { background: #ff4d4d; color: white; padding: 5px 10px; float: right; }
-     </style>
+    </style>
 </head>
 <body>
 
 <div class="container">
     <div id="section-login">
         <h2>Quizs-Evo</h2>
-        <input type="email" id="email" placeholder="Correo electrónico">
-        <input type="password" id="password" placeholder="Contraseña">
+        <input type="email" id="l-email" placeholder="Correo electrónico">
+        <input type="password" id="l-password" placeholder="Contraseña">
         <button class="btn-primary" id="btn-login">Entrar</button>
         <p id="mensaje" style="color:red; font-size:13px;"></p>
     </div>
 
     <div id="section-admin" class="hidden">
         <h2 style="color: #28a745;">Administración</h2>
-        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-            <button class="btn-tab active" onclick="mostrarTab('tab-alumnos')">Alumnos</button>
-            <button class="btn-tab" onclick="mostrarTab('tab-quizzes')">Cuestionarios</button>
-            <button class="btn-tab" onclick="mostrarTab('tab-editor')">Editor JSON</button>
+        <div style="display: flex; justify-content: space-between;">
+            <button class="btn-tab active" id="tab-btn-alumnos">👥 Gestión Alumnos</button>
+            <button class="btn-tab" id="tab-btn-quizzes">📝 Gestión Cuestionarios</button>
         </div>
 
-        <div id="tab-editor" class="tab-content hidden">
-            <div class="editor-card">
-                <h3>Editor de Cuestionarios</h3>
-                <p style="font-size: 0.8rem; color: #666;">Importa un JSON existente o crea uno nuevo desde cero.</p>
-                
-                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                    <input type="file" id="importar-json" accept=".json" style="display: none;">
-                    <button class="btn-primary" style="width: auto;" onclick="document.getElementById('importar-json').click()">📂 Importar JSON</button>
-                    <button class="btn-primary" style="width: auto; background: #28a745;" onclick="nuevaPregunta()">➕ Añadir Pregunta</button>
-                    <button class="btn-primary" style="width: auto; background: #6c757d;" onclick="descargarJSON()">💾 Descargar JSON</button>
-                </div>
-
-                <div id="lista-preguntas-editor">
-                    </div>
-            </div>
-        </div>
-
-        <div id="view-alumnos" class="admin-content">
-            <h4>Añadir Usuario</h4>
+        <div id="view-alumnos" class="admin-content tab-content">
+            <h4>Añadir Alumno</h4>
             <div class="form-manual">
                 <div class="flex-row">
                     <input type="email" id="m-email" placeholder="Email">
                     <input type="password" id="m-pass" placeholder="Pass">
                     <input type="text" id="m-curso" placeholder="Curso">
                 </div>
-                <button class="btn-primary" id="btn-crear-manual">Guardar</button>
+                <button class="btn-primary" id="btn-crear-manual">Guardar Usuario</button>
             </div>
+            <button style="background:#28a745; color:white; width:100%" id="btn-importar">📂 Importar CSV</button>
             <div class="tabla-container">
                 <table>
                     <thead><tr><th>Email</th><th>Curso</th><th>Acción</th></tr></thead>
@@ -108,16 +62,16 @@
             </div>
         </div>
 
-        <div id="view-quizzes" class="admin-content hidden">
-            <h4>Nuevo Cuestionario</h4>
+        <div id="view-quizzes" class="admin-content tab-content hidden">
+            <h4>Cuestionarios</h4>
             <div class="form-manual">
                 <input type="text" id="q-titulo" placeholder="Título">
                 <div class="flex-row">
                     <input type="text" id="q-curso" placeholder="Curso">
-                    <input type="text" id="q-ruta" placeholder="Nombre archivo (ej: test.json)">
+                    <input type="text" id="q-ruta" placeholder="Ruta (ej: cuestionarios/test.json)">
                 </div>
-                <label><input type="checkbox" id="q-activo" checked> Habilitado</label>
-                <button class="btn-primary" id="btn-guardar-quiz" style="background:#6f42c1;">Guardar Quiz</button>
+                <label><input type="checkbox" id="q-activo" checked> Activo</label>
+                <button class="btn-primary" id="btn-guardar-quiz" style="background:#6f42c1;">Guardar Cuestionario</button>
             </div>
             <div class="tabla-container">
                 <table>
@@ -132,8 +86,8 @@
 
     <div id="section-alumno" class="hidden">
         <div style="background:#e7f3ff; padding:20px; border-radius:8px; text-align: left;">
-            <h2>Panel Alumno</h2>
-            <p>Hola: <b id="alumno-email"></b> | Curso: <span id="alumno-curso">...</span></p>
+            <h2>Panel Estudiante</h2>
+            <p>Alumno: <b id="alumno-email"></b> | Curso: <span id="alumno-curso">...</span></p>
             <hr>
             <div id="lista-examenes"></div>
         </div>
@@ -149,21 +103,30 @@
     import { activarSincronizacionAlumnos, activarSincronizacionQuizzes, crearAlumnoManual, guardarNuevoQuiz } from './admin.js';
     import { cargarListaExamenes } from './alumno.js';
 
-    // Tabs logic
-    const tAlu = document.getElementById('tab-btn-alumnos');
-    const tQui = document.getElementById('tab-btn-quizzes');
-    const vAlu = document.getElementById('view-alumnos');
-    const vQui = document.getElementById('view-quizzes');
+    // Manejo de Pestañas
+    const btnAlu = document.getElementById('tab-btn-alumnos');
+    const btnQui = document.getElementById('tab-btn-quizzes');
+    const viewAlu = document.getElementById('view-alumnos');
+    const viewQui = document.getElementById('view-quizzes');
 
-    tAlu.onclick = () => { tAlu.classList.add('active'); tQui.classList.remove('active'); vAlu.classList.remove('hidden'); vQui.classList.add('hidden'); };
-    tQui.onclick = () => { tQui.classList.add('active'); tAlu.classList.remove('active'); vQui.classList.remove('hidden'); vAlu.classList.add('hidden'); };
+    btnAlu.onclick = () => {
+        btnAlu.classList.add('active'); btnQui.classList.remove('active');
+        viewAlu.classList.remove('hidden'); viewQui.classList.add('hidden');
+    };
+    btnQui.onclick = () => {
+        btnQui.classList.add('active'); btnAlu.classList.remove('active');
+        viewQui.classList.remove('hidden'); viewAlu.classList.add('hidden');
+    };
 
-    // Auth
+    // Auth Login
     document.getElementById('btn-login').onclick = async () => {
-        const m = document.getElementById('email').value;
-        const p = document.getElementById('password').value;
-        try { await signInWithEmailAndPassword(auth, m, p); } 
-        catch (e) { document.getElementById('mensaje').innerText = "Acceso denegado"; }
+        const m = document.getElementById('l-email').value;
+        const p = document.getElementById('l-password').value;
+        try { 
+            await signInWithEmailAndPassword(auth, m, p); 
+        } catch (e) { 
+            document.getElementById('mensaje').innerText = "Acceso denegado"; 
+        }
     };
 
     document.querySelectorAll('.logout').forEach(b => b.onclick = () => signOut(auth));
@@ -176,11 +139,11 @@
         if (user) {
             sL.classList.add('hidden');
             if (user.email === CORREO_ADMIN) {
-                sAd.classList.remove('hidden');
+                sAd.classList.remove('hidden'); sAl.classList.add('hidden');
                 activarSincronizacionAlumnos();
                 activarSincronizacionQuizzes();
             } else {
-                sAl.classList.remove('hidden');
+                sAd.classList.add('hidden'); sAl.classList.remove('hidden');
                 document.getElementById('alumno-email').innerText = user.email;
                 const d = await getDoc(doc(db, "usuarios", user.email));
                 if(d.exists()) {
@@ -193,12 +156,18 @@
         }
     });
 
+    // Eventos Admin
     document.getElementById('btn-crear-manual').onclick = async () => {
         const e = document.getElementById('m-email').value;
         const p = document.getElementById('m-pass').value;
         const c = document.getElementById('m-curso').value;
-        await crearAlumnoManual(e,p,c);
-        alert("Creado");
+        try {
+            await crearAlumnoManual(e, p, c);
+            alert("Alumno creado");
+            document.getElementById('m-email').value = "";
+            document.getElementById('m-pass').value = "";
+            document.getElementById('m-curso').value = "";
+        } catch(err) { alert(err.message); }
     };
 
     document.getElementById('btn-guardar-quiz').onclick = async () => {
@@ -208,28 +177,12 @@
             ruta: document.getElementById('q-ruta').value,
             activo: document.getElementById('q-activo').checked
         };
-        
         try {
             await guardarNuevoQuiz(datos);
-            alert("¡Guardado!");
-            // Aquí borramos los campos:
+            alert("Guardado correctamente");
             document.getElementById('q-titulo').value = "";
-            document.getElementById('q-curso').value = "";
             document.getElementById('q-ruta').value = "";
-        } catch(e) {
-            alert("Error: " + e.message);
-        }
-    };
-
-    window.mostrarTab = (tabId) => {
-        // Ocultar todos los contenidos
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-        // Quitar clase active de todos los botones
-        document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('active'));
-        
-        // Mostrar el seleccionado
-        document.getElementById(tabId).classList.remove('hidden');
-        // Activar botón (puedes añadir lógica para buscar el botón si quieres)
+        } catch(e) { alert(e.message); }
     };
 </script>
 </body>
