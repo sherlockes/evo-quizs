@@ -2,26 +2,29 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Quizs-Evo | Gestión</title>
+    <title>Quizs-Evo | Gestión Total</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; display: flex; justify-content: center; padding-top: 20px; }
-        .container { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 700px; text-align: center; }
-        input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        .container { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 750px; text-align: center; }
+        input, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
         button { padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; margin-top: 5px; }
         .btn-primary { background: #007bff; color: white; width: 100%; }
-        .btn-tab { background: #eee; color: #555; width: 48%; margin-bottom: 20px; font-size: 16px; }
+        .btn-tab { background: #eee; color: #555; flex: 1; margin-bottom: 20px; font-size: 14px; }
         .btn-tab.active { background: #007bff; color: white; }
         .hidden { display: none !important; }
+        
         .admin-content { text-align: left; padding: 15px; border: 1px solid #eee; border-radius: 8px; }
         .form-manual { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
         .flex-row { display: flex; gap: 10px; }
+
+        /* Estilos Editor */
+        .pregunta-edit { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e0e0e0; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .tabla-container { margin-top: 15px; max-height: 300px; overflow-y: auto; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 10px; border: 1px solid #eee; font-size: 13px; text-align: left; }
         th { background: #f1f1f1; }
         .btn-accion { padding: 4px 8px; font-size: 11px; width: auto; margin: 2px; }
-        .btn-edit { background: #ffc107; }
         .btn-borrar { background: #dc3545; color: white; }
     </style>
 </head>
@@ -38,13 +41,14 @@
 
     <div id="section-admin" class="hidden">
         <h2 style="color: #28a745;">Administración</h2>
-        <div style="display: flex; justify-content: space-between;">
-            <button class="btn-tab active" id="tab-btn-alumnos">👥 Gestión Alumnos</button>
-            <button class="btn-tab" id="tab-btn-quizzes">📝 Gestión Cuestionarios</button>
+        <div style="display: flex; gap: 5px;">
+            <button class="btn-tab active" id="tab-btn-alumnos">👥 Alumnos</button>
+            <button class="btn-tab" id="tab-btn-quizzes">📝 Cuestionarios</button>
+            <button class="btn-tab" id="tab-btn-editor">🛠️ Editor JSON</button>
         </div>
 
-        <div id="view-alumnos" class="admin-content tab-content">
-            <h4>Añadir Alumno</h4>
+        <div id="view-alumnos" class="admin-content">
+            <h4>Gestión de Alumnos</h4>
             <div class="form-manual">
                 <div class="flex-row">
                     <input type="email" id="m-email" placeholder="Email">
@@ -53,7 +57,6 @@
                 </div>
                 <button class="btn-primary" id="btn-crear-manual">Guardar Usuario</button>
             </div>
-            <button style="background:#28a745; color:white; width:100%" id="btn-importar">📂 Importar CSV</button>
             <div class="tabla-container">
                 <table>
                     <thead><tr><th>Email</th><th>Curso</th><th>Acción</th></tr></thead>
@@ -62,16 +65,16 @@
             </div>
         </div>
 
-        <div id="view-quizzes" class="admin-content tab-content hidden">
-            <h4>Cuestionarios</h4>
+        <div id="view-quizzes" class="admin-content hidden">
+            <h4>Cuestionarios Activos</h4>
             <div class="form-manual">
                 <input type="text" id="q-titulo" placeholder="Título">
                 <div class="flex-row">
                     <input type="text" id="q-curso" placeholder="Curso">
-                    <input type="text" id="q-ruta" placeholder="Ruta (ej: cuestionarios/test.json)">
+                    <input type="text" id="q-ruta" placeholder="Nombre archivo (ej: tema1.json)">
                 </div>
-                <label><input type="checkbox" id="q-activo" checked> Activo</label>
-                <button class="btn-primary" id="btn-guardar-quiz" style="background:#6f42c1;">Guardar Cuestionario</button>
+                <label style="font-size: 13px;"><input type="checkbox" id="q-activo" checked> Habilitado</label>
+                <button class="btn-primary" id="btn-guardar-quiz" style="background:#6f42c1;">Registrar en Sistema</button>
             </div>
             <div class="tabla-container">
                 <table>
@@ -80,13 +83,27 @@
                 </table>
             </div>
         </div>
+
+        <div id="view-editor" class="admin-content hidden">
+            <h4>Editor de Archivos JSON</h4>
+            <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+                <input type="file" id="importar-json" accept=".json" style="display:none">
+                <button style="background:#6c757d; color:white; flex:1;" onclick="document.getElementById('importar-json').click()">📂 Importar</button>
+                <button style="background:#28a745; color:white; flex:1;" onclick="nuevaPregunta()">➕ Pregunta</button>
+                <button style="background:#007bff; color:white; flex:1;" onclick="descargarJSON()">💾 Descargar</button>
+            </div>
+            <div id="lista-preguntas-editor" style="max-height: 400px; overflow-y: auto;">
+                <p style="text-align:center; color:#999;">Importa un archivo o añade una pregunta para empezar.</p>
+            </div>
+        </div>
+
         <br>
         <button style="background:#6c757d; color:white; width:100%" class="logout">Cerrar Sesión</button>
     </div>
 
     <div id="section-alumno" class="hidden">
         <div style="background:#e7f3ff; padding:20px; border-radius:8px; text-align: left;">
-            <h2>Panel Estudiante</h2>
+            <h2>Mi Panel</h2>
             <p>Alumno: <b id="alumno-email"></b> | Curso: <span id="alumno-curso">...</span></p>
             <hr>
             <div id="lista-examenes"></div>
@@ -100,50 +117,49 @@
     import { auth, CORREO_ADMIN, db } from './config.js';
     import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    import { activarSincronizacionAlumnos, activarSincronizacionQuizzes, crearAlumnoManual, guardarNuevoQuiz } from './admin.js';
+    import { activarSincronizacionAlumnos, activarSincronizacionQuizzes, crearAlumnoManual, guardarNuevoQuiz, renderizarEditor } from './admin.js';
     import { cargarListaExamenes } from './alumno.js';
 
-    // Manejo de Pestañas
-    const btnAlu = document.getElementById('tab-btn-alumnos');
-    const btnQui = document.getElementById('tab-btn-quizzes');
-    const viewAlu = document.getElementById('view-alumnos');
-    const viewQui = document.getElementById('view-quizzes');
-
-    btnAlu.onclick = () => {
-        btnAlu.classList.add('active'); btnQui.classList.remove('active');
-        viewAlu.classList.remove('hidden'); viewQui.classList.add('hidden');
-    };
-    btnQui.onclick = () => {
-        btnQui.classList.add('active'); btnAlu.classList.remove('active');
-        viewQui.classList.remove('hidden'); viewAlu.classList.add('hidden');
+    // Lógica de Pestañas
+    const tabs = {
+        'tab-btn-alumnos': 'view-alumnos',
+        'tab-btn-quizzes': 'view-quizzes',
+        'tab-btn-editor': 'view-editor'
     };
 
-    // Auth Login
+    Object.keys(tabs).forEach(btnId => {
+        document.getElementById(btnId).onclick = (e) => {
+            document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.admin-content').forEach(v => v.classList.add('hidden'));
+            
+            e.target.classList.add('active');
+            document.getElementById(tabs[btnId]).classList.remove('hidden');
+            
+            if(btnId === 'tab-btn-editor') renderizarEditor();
+        };
+    });
+
+    // Login
     document.getElementById('btn-login').onclick = async () => {
         const m = document.getElementById('l-email').value;
         const p = document.getElementById('l-password').value;
-        try { 
-            await signInWithEmailAndPassword(auth, m, p); 
-        } catch (e) { 
-            document.getElementById('mensaje').innerText = "Acceso denegado"; 
-        }
+        try { await signInWithEmailAndPassword(auth, m, p); } 
+        catch (e) { document.getElementById('mensaje').innerText = "Credenciales incorrectas"; }
     };
 
     document.querySelectorAll('.logout').forEach(b => b.onclick = () => signOut(auth));
 
     onAuthStateChanged(auth, async (user) => {
-        const sL = document.getElementById('section-login');
-        const sAd = document.getElementById('section-admin');
-        const sAl = document.getElementById('section-alumno');
+        const sL = document.getElementById('section-login'), sAd = document.getElementById('section-admin'), sAl = document.getElementById('section-alumno');
+        sL.classList.add('hidden'); sAd.classList.add('hidden'); sAl.classList.add('hidden');
 
         if (user) {
-            sL.classList.add('hidden');
             if (user.email === CORREO_ADMIN) {
-                sAd.classList.remove('hidden'); sAl.classList.add('hidden');
+                sAd.classList.remove('hidden');
                 activarSincronizacionAlumnos();
                 activarSincronizacionQuizzes();
             } else {
-                sAd.classList.add('hidden'); sAl.classList.remove('hidden');
+                sAl.classList.remove('hidden');
                 document.getElementById('alumno-email').innerText = user.email;
                 const d = await getDoc(doc(db, "usuarios", user.email));
                 if(d.exists()) {
@@ -151,37 +167,30 @@
                     cargarListaExamenes(d.data().curso);
                 }
             }
-        } else {
-            sL.classList.remove('hidden'); sAd.classList.add('hidden'); sAl.classList.add('hidden');
-        }
+        } else { sL.classList.remove('hidden'); }
     });
 
     // Eventos Admin
     document.getElementById('btn-crear-manual').onclick = async () => {
-        const e = document.getElementById('m-email').value;
-        const p = document.getElementById('m-pass').value;
-        const c = document.getElementById('m-curso').value;
+        const e = document.getElementById('m-email').value, p = document.getElementById('m-pass').value, c = document.getElementById('m-curso').value;
         try {
             await crearAlumnoManual(e, p, c);
             alert("Alumno creado");
-            document.getElementById('m-email').value = "";
-            document.getElementById('m-pass').value = "";
-            document.getElementById('m-curso').value = "";
+            document.getElementById('m-email').value = ""; document.getElementById('m-pass').value = "";
         } catch(err) { alert(err.message); }
     };
 
     document.getElementById('btn-guardar-quiz').onclick = async () => {
-        const datos = {
+        const d = {
             titulo: document.getElementById('q-titulo').value,
             curso: document.getElementById('q-curso').value,
             ruta: document.getElementById('q-ruta').value,
             activo: document.getElementById('q-activo').checked
         };
         try {
-            await guardarNuevoQuiz(datos);
-            alert("Guardado correctamente");
-            document.getElementById('q-titulo').value = "";
-            document.getElementById('q-ruta').value = "";
+            await guardarNuevoQuiz(d);
+            alert("Registrado");
+            document.getElementById('q-titulo').value = ""; document.getElementById('q-ruta').value = "";
         } catch(e) { alert(e.message); }
     };
 </script>
