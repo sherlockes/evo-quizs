@@ -68,14 +68,36 @@ window.borrarAlumno = async (id) => {
     if(confirm("¿Eliminar alumno?")) await deleteDoc(doc(db, "usuarios", id));
 };
 
-// --- IMPORTANTE: Aquí está el export que te daba error ---
 export async function crearAlumnoManual(email, pass, curso) {
     try {
-        await createUserWithEmailAndPassword(secondaryAuth, email, pass);
-        await signOut(secondaryAuth);
-        await setDoc(doc(db, "usuarios", email), { email, curso, rol: "alumno" });
+        // 1. Intentamos crear el usuario en Authentication
+        try {
+            await createUserWithEmailAndPassword(secondaryAuth, email, pass);
+            // Si se crea de cero, cerramos la sesión secundaria inmediatamente
+            await signOut(secondaryAuth);
+        } catch (authError) {
+            // Si el error es que ya existe en Auth, no lanzamos error, seguimos adelante
+            if (authError.code === 'auth/email-already-in-use') {
+                console.log("El usuario ya existe en Firebase Auth. Actualizando base de datos...");
+            } else {
+                // Si es otro error (password corta, email mal escrito), sí lo lanzamos
+                throw authError;
+            }
+        }
+
+        // 2. Creamos o actualizamos el documento en Firestore
+        // Usamos setDoc para que si ya existía el registro, lo sobrescriba con el nuevo curso
+        await setDoc(doc(db, "usuarios", email), { 
+            email: email.toLowerCase().trim(), 
+            curso: curso.trim(), 
+            rol: "alumno" 
+        });
+
         return true;
-    } catch (e) { throw e; }
+    } catch (e) {
+        console.error("Error completo en creación:", e);
+        throw e;
+    }
 }
 
 // --- GESTIÓN DE CUESTIONARIOS ---
