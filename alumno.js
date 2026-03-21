@@ -20,33 +20,41 @@ export function cargarListaExamenes(cursoAlumno) {
             const quiz = docSnap.data();
             const div = document.createElement('div');
             div.style = "background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; border-left: 5px solid #007bff; display: flex; justify-content: space-between; align-items: center;";
+            
+            // --- CORRECCIÓN AQUÍ ---
+            // Tenemos que pasar 'quiz.ruta' y 'quiz.titulo' como strings (entre comillas simples)
             div.innerHTML = `
-                <span>${quiz.titulo}</span>
-                <button class="btn-primary" style="width: auto; margin: 0;" onclick="iniciarExamen('${quiz.ruta}')">Comenzar</button>
+                <span style="font-weight: bold; color: #333;">${quiz.titulo}</span>
+                <button class="btn-primary" style="width: auto; margin: 0; padding: 8px 20px;" 
+                    onclick="iniciarExamen('${quiz.ruta}', '${quiz.titulo}')">
+                    Comenzar
+                </button>
             `;
             contenedor.appendChild(div);
         });
     });
 }
 
-window.iniciarExamen = async (ruta) => {
+// Asegúrate de que la función iniciarExamen reciba los dos parámetros
+window.iniciarExamen = async (ruta, titulo) => {
     try {
         const response = await fetch(ruta);
+        if (!response.ok) throw new Error("No se pudo cargar el JSON");
+        
         preguntasActuales = await response.json();
         
-        // Barajar preguntas si quieres (opcional, como en tu otro script)
-        preguntasActuales.sort(() => Math.random() - 0.5);
-        
-        // Inicializamos variables de seguimiento
+        // Guardamos los datos para el registro final
         rutaExamenActual = ruta;
         tituloExamenActual = titulo;
+        
         indicePregunta = 0;
         puntuacion = 0;
-        startTime = Date.now(); // Empezamos a contar el tiempo
+        startTime = Date.now(); // Iniciar cronómetro
         
         mostrarPregunta();
     } catch (e) {
-        alert("Error al cargar el archivo JSON: " + e.message);
+        console.error(e);
+        alert("Error al cargar el cuestionario: " + e.message);
     }
 };
 
