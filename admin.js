@@ -229,6 +229,10 @@ window.cargarQuizAlEditor = async (id) => {
         
         if (docSnap.exists()) {
             const datos = docSnap.data();
+    
+            // --- ACTUALIZAMOS EL TÍTULO EN LA INTERFAZ ---
+            document.getElementById('editor-titulo-quiz').innerText = `Editando: ${datos.titulo} (${datos.curso})`;
+
             // Si el quiz es nuevo y no tiene preguntas aún, inicializamos array vacío
             quizEnEdicion = datos.preguntas || [];
             

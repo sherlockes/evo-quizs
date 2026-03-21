@@ -94,6 +94,11 @@
         .opcion-fila input[type="text"] { margin: 0 !important; padding: 6px !important; font-size: 0.9rem !important; }
         
         textarea { height: 45px; font-size: 0.85rem; border-style: dashed; }
+
+        #view-resultados button:hover {
+            color: #000 !important;
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body>
@@ -173,19 +178,25 @@
             </div>       
         </div>
 
-        <div id="view-editor" class="admin-content hidden">
-            <h4>Editor de Archivos JSON</h4>
-            <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+        <div id="view-editor" class="admin-content hidden tab-content" style="position: relative;">
+            <button onclick="document.getElementById('tab-btn-quizzes').click()" 
+                    style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">
+                &times;
+            </button>
+
+            <h3 id="editor-titulo-quiz" style="margin-top: 0; color: #546e7a; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+                Editor de Cuestionario
+            </h3>
+
+            <div style="display: flex; gap: 5px; margin-bottom: 15px; margin-top: 15px;">
+                <input type="file" id="importar-json" accept=".json" style="display:none">
                 <button style="background:#6c757d; color:white; flex:1;" onclick="document.getElementById('importar-json').click()">📂 Importar PC</button>
                 <button style="background:#28a745; color:white; flex:1;" onclick="nuevaPregunta()">➕ Pregunta</button>
-                
                 <button style="background:#007bff; color:white; flex:2; font-weight:bold;" onclick="guardarEnNube()">💾 GUARDAR CAMBIOS</button>
-                
                 <button style="background:#adb5bd; color:white; flex:1;" onclick="descargarJSON()">📥 Backup</button>
             </div>
-            <div id="lista-preguntas-editor" style="max-height: 400px; overflow-y: auto;">
-                <p style="text-align:center; color:#999;">Importa un archivo o añade una pregunta para empezar.</p>
-            </div>
+            
+            <div id="lista-preguntas-editor"></div>
         </div>
 
         <br>
