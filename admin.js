@@ -253,37 +253,33 @@ window.guardarEnNube = async () => {
 };
 
 window.borrarQuiz = async (id) => {
-    if (!confirm("¿Eliminar cuestionario y todos sus resultados históricos? Esta acción es irreversible.")) return;
+    if (!confirm("¿Eliminar este cuestionario y todos sus resultados permanentemente?")) return;
 
     try {
-        // 1. Obtenemos los datos del cuestionario antes de borrarlo para saber su ruta
-        const docRef = doc(db, "cuestionarios", id);
-        const docSnap = await getDoc(docRef);
-        
-        if (docSnap.exists()) {
-            const rutaExamen = docSnap.data().ruta;
+        // 1. Buscamos todos los resultados que tengan este quizId
+        const q = query(collection(db, "resultados"), where("quizId", "==", id));
+        const resultadosSnap = await getDocs(q);
 
-            // 2. Buscamos todos los resultados asociados a esa ruta
-            const q = query(collection(db, "resultados"), where("quizRuta", "==", rutaExamen));
-            const resultadosSnap = await getDocs(q);
+        // 2. Borramos los resultados asociados en bloque
+        const promesasBorrado = [];
+        resultadosSnap.forEach((resDoc) => {
+            promesasBorrado.push(deleteDoc(doc(db, "resultados", resDoc.id)));
+        });
 
-            // 3. Borramos los resultados uno a uno (o por lotes)
-            const promesasBorrado = [];
-            resultadosSnap.forEach((resDoc) => {
-                promesasBorrado.push(deleteDoc(doc(db, "resultados", resDoc.id)));
-            });
-
+        // Esperamos a que se borren todos los resultados (si los hay)
+        if (promesasBorrado.length > 0) {
             await Promise.all(promesasBorrado);
-            console.log(`Se han eliminado ${promesasBorrado.length} resultados asociados.`);
+            console.log(`Se eliminaron ${promesasBorrado.length} registros de notas.`);
         }
 
-        // 4. Finalmente, borramos el cuestionario
-        await deleteDoc(docRef);
-        alert("Cuestionario y resultados eliminados correctamente.");
+        // 3. Finalmente, borramos el cuestionario de la colección principal
+        await deleteDoc(doc(db, "cuestionarios", id));
+        
+        alert("Cuestionario y resultados eliminados con éxito.");
 
     } catch (e) {
-        console.error("Error al eliminar el cuestionario completo:", e);
-        alert("Error al eliminar: " + e.message);
+        console.error("Error en el proceso de borrado:", e);
+        alert("No se pudo eliminar todo: " + e.message);
     }
 };
 
