@@ -96,40 +96,41 @@ export function renderizarEditor() {
     contenedor.innerHTML = "";
 
     if (quizEnEdicion.length === 0) {
-        contenedor.innerHTML = '<p style="text-align:center; color:#999; padding:20px;">Cuestionario vacío. Añade una pregunta para empezar.</p>';
+        contenedor.innerHTML = '<p style="text-align:center; color:#999; padding:40px;">Cuestionario vacío. Añade una pregunta para empezar.</p>';
         return;
     }
 
     quizEnEdicion.forEach((item, index) => {
         const div = document.createElement('div');
         div.className = "pregunta-edit";
-        // Añadimos un ID único para poder hacer scroll hasta aquí
-        div.id = `pregunta-id-${index}`; 
+        div.id = `pregunta-id-${index}`; // ID para el scroll automático
         
         div.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                <label><b>#${index + 1}</b></label>
-                <button class="btn-borrar" style="width:auto; padding:2px 8px; font-size:10px;" onclick="borrarPreguntaEditor(${index})">Eliminar</button>
+            <div class="editor-header-fila">
+                <span class="editor-num">#${index + 1}</span>
+                <input type="text" class="editor-enunciado-input" placeholder="Escribe el enunciado de la pregunta..." value="${item.pregunta}" onchange="actualizarDato(${index}, 'pregunta', this.value)">
+                <button class="btn-borrar-compact" onclick="borrarPreguntaEditor(${index})" title="Eliminar pregunta">✕</button>
             </div>
             
-            <input type="text" placeholder="Escribe la pregunta..." value="${item.pregunta}" onchange="actualizarDato(${index}, 'pregunta', this.value)">
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+            <div class="editor-opciones-container">
                 ${item.opciones.map((opt, i) => `
                     <div class="opcion-fila">
-                        <input type="radio" name="correcta-${index}" ${item.respuestaCorrecta === i ? 'checked' : ''} onchange="actualizarDato(${index}, 'respuestaCorrecta', ${i})">
-                        <input type="text" placeholder="Opción ${i+1}" value="${opt}" style="margin:0;" onchange="actualizarOpcion(${index}, ${i}, this.value)">
+                        <input type="radio" name="correcta-${index}" ${item.respuestaCorrecta === i ? 'checked' : ''} onchange="actualizarDato(${index}, 'respuestaCorrecta', ${i})" title="Marcar como correcta">
+                        <input type="text" placeholder="Opción ${i+1}" value="${opt}" onchange="actualizarOpcion(${index}, ${i}, this.value)">
                     </div>
                 `).join('')}
             </div>
             
-            <textarea placeholder="Explicación (opcional)..." onchange="actualizarDato(${index}, 'explicacion', this.value)">${item.explicacion || ''}</textarea>
+            <div style="padding-left: 40px;">
+                <textarea placeholder="Explicación pedagógica (opcional)..." onchange="actualizarDato(${index}, 'explicacion', this.value)">${item.explicacion || ''}</textarea>
+            </div>
         `;
         contenedor.appendChild(div);
     });
 }
+window.actualizarDato = (i, campo, valor) => { quizEnEdicion[i][campo] = valor; };
+window.actualizarOpcion = (pIndex, oIndex, valor) => { quizEnEdicion[pIndex].opciones[oIndex] = valor; };
 
-// Nueva pregunta con Scroll Automático
 window.nuevaPregunta = () => {
     quizEnEdicion.push({ pregunta: "", opciones: ["", "", "", ""], respuestaCorrecta: 0, explicacion: "" });
     renderizarEditor();
@@ -146,12 +147,6 @@ window.nuevaPregunta = () => {
     }, 100);
 };
 
-window.actualizarDato = (i, campo, valor) => { quizEnEdicion[i][campo] = valor; };
-window.actualizarOpcion = (pIndex, oIndex, valor) => { quizEnEdicion[pIndex].opciones[oIndex] = valor; };
-window.nuevaPregunta = () => {
-    quizEnEdicion.push({ pregunta: "", opciones: ["", "", "", ""], respuestaCorrecta: 0, explicacion: "" });
-    renderizarEditor();
-};
 window.borrarPreguntaEditor = (i) => {
     quizEnEdicion.splice(i, 1);
     renderizarEditor();
