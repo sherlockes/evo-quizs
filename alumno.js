@@ -47,33 +47,46 @@ function mostrarPregunta() {
     const contenedor = document.getElementById('section-alumno');
     const data = preguntasActuales[indicePregunta];
 
-    // Calculamos la nota actual en tiempo real
-    const notaActual = ((puntuacion / preguntasActuales.length) * 10).toFixed(1);
+    // --- CÁLCULO DE NOTA ACTUALIZADO ---
+    // Si es la primera pregunta, la nota es 0. 
+    // Después, calculamos: (Aciertos / Preguntas Respondidas) * 10
+    let notaActual = 0;
+    if (indicePregunta > 0) {
+        notaActual = ((puntuacion / indicePregunta) * 10).toFixed(1);
+    }
 
     contenedor.innerHTML = `
         <div style="text-align: left;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <span style="font-size: 0.9rem; color: #666;">Pregunta ${indicePregunta + 1} de ${preguntasActuales.length}</span>
-                <span style="background: #007bff; color: white; padding: 4px 10px; border-radius: 20px; font-weight: bold;">Nota: ${notaActual}</span>
+                <div style="text-align: right;">
+                    <span style="display: block; font-size: 0.7rem; color: #999; text-transform: uppercase;">Nota Temporal</span>
+                    <span style="background: #007bff; color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 1.1rem;">${notaActual}</span>
+                </div>
             </div>
             
             <div style="background: #eee; height: 6px; border-radius: 3px; margin-bottom: 20px;">
                 <div style="background: #007bff; height: 100%; width: ${(indicePregunta / preguntasActuales.length) * 100}%; border-radius: 3px; transition: 0.5s;"></div>
             </div>
 
-            <h3 style="margin-bottom: 20px;">${data.pregunta}</h3>
+            <h3 style="margin-bottom: 20px; line-height: 1.4;">${data.pregunta}</h3>
             <div id="opciones-container">
                 ${data.opciones.map((opcion, i) => `
                     <button class="btn-opcion" onclick="verificarRespuesta(${i})" 
-                        style="width: 100%; text-align: left; padding: 12px; margin-bottom: 8px; border: 1px solid #ddd; background: white; border-radius: 6px; transition: 0.2s;">
+                        style="width: 100%; text-align: left; padding: 15px; margin-bottom: 10px; border: 1px solid #ddd; background: white; border-radius: 8px; cursor: pointer; transition: 0.2s;">
                         ${opcion}
                     </button>
                 `).join('')}
             </div>
             
-            <div id="explicacion-container" class="hidden" style="margin-top: 20px; padding: 15px; border-radius: 8px; line-height: 1.5;"></div>
+            <div id="explicacion-container" class="hidden" style="margin-top: 20px; padding: 20px; border-radius: 8px; border-left: 5px solid #ffc107; background: #fff3cd; color: #856404;">
+                <strong style="display: block; margin-bottom: 5px;">💡 Explicación:</strong>
+                <span id="texto-explicacion"></span>
+            </div>
             
-            <button id="btn-siguiente" class="btn-primary hidden" onclick="proximaPregunta()" style="margin-top: 15px; background: #28a745;">Continuar</button>
+            <button id="btn-siguiente" class="btn-primary hidden" onclick="proximaPregunta()" style="margin-top: 20px; background: #28a745; height: 50px; font-size: 1.1rem;">
+                Continuar a la siguiente pregunta →
+            </button>
         </div>
     `;
 }
@@ -83,32 +96,32 @@ window.verificarRespuesta = (seleccionado) => {
     const correcta = data.respuestaCorrecta;
     const botones = document.querySelectorAll('.btn-opcion');
     const explicacionDiv = document.getElementById('explicacion-container');
+    const textoExplicacion = document.getElementById('texto-explicacion');
     const btnSiguiente = document.getElementById('btn-siguiente');
 
     botones.forEach(b => b.disabled = true);
 
     if (seleccionado === correcta) {
+        // ACIERTO
+        puntuacion++;
         botones[seleccionado].style.background = "#d4edda";
         botones[seleccionado].style.borderColor = "#28a745";
-        puntuacion++;
+        botones[seleccionado].style.color = "#155724";
         
-        // Si acierta, pasamos rápido a la siguiente (1 segundo)
-        setTimeout(proximaPregunta, 1000);
+        // Esperamos 1.2s para que vea que ha acertado y pasamos
+        setTimeout(proximaPregunta, 1200);
     } else {
-        // Si falla, mostramos el error y la explicación
+        // ERROR
         botones[seleccionado].style.background = "#f8d7da";
         botones[seleccionado].style.borderColor = "#dc3545";
+        botones[seleccionado].style.color = "#721c24";
+        
         botones[correcta].style.background = "#d4edda";
         botones[correcta].style.borderColor = "#28a745";
 
-        // Mostrar explicación
-        explicacionDiv.innerHTML = `<strong>💡 Explicación:</strong><br>${data.explicacion || "No hay explicación disponible para esta pregunta."}`;
-        explicacionDiv.style.background = "#fff3cd";
-        explicacionDiv.style.color = "#856404";
-        explicacionDiv.style.border = "1px solid #ffeeba";
+        // Mostrar la explicación del JSON
+        textoExplicacion.innerText = data.explicacion || "No hay una explicación detallada para esta pregunta.";
         explicacionDiv.classList.remove('hidden');
-        
-        // Mostramos botón para que el usuario decida cuándo seguir tras leer
         btnSiguiente.classList.remove('hidden');
     }
 };
@@ -124,20 +137,19 @@ window.proximaPregunta = () => {
 
 function mostrarResultado() {
     const contenedor = document.getElementById('section-alumno');
+    // Nota final sobre el total
     const notaFinal = ((puntuacion / preguntasActuales.length) * 10).toFixed(1);
     
-    let mensaje = "¡Sigue practicando!";
-    if (notaFinal >= 9) mensaje = "¡Excelente dominio!";
-    else if (notaFinal >= 5) mensaje = "¡Aprobado!";
-
     contenedor.innerHTML = `
-        <div style="padding: 20px;">
-            <h2>Cuestionario Finalizado</h2>
-            <div style="font-size: 3rem; font-weight: bold; color: #007bff; margin: 20px 0;">${notaFinal}</div>
-            <p style="font-size: 1.2rem;">Has acertado <b>${puntuacion}</b> de <b>${preguntasActuales.length}</b></p>
-            <p style="color: #666;">${mensaje}</p>
+        <div style="padding: 30px; text-align: center;">
+            <h2 style="margin-bottom: 10px;">¡Cuestionario completado!</h2>
+            <p style="color: #666;">Tu calificación final es:</p>
+            <div style="font-size: 4rem; font-weight: bold; color: #007bff; margin: 20px 0;">${notaFinal}</div>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; display: inline-block; margin-bottom: 25px;">
+                Aciertos: <b>${puntuacion}</b> de ${preguntasActuales.length}
+            </div>
             <br>
-            <button class="btn-primary" onclick="window.location.reload()">Finalizar y Volver</button>
+            <button class="btn-primary" onclick="window.location.reload()" style="max-width: 250px;">Volver a mis cursos</button>
         </div>
     `;
 }
