@@ -5,7 +5,7 @@ let preguntasActuales = [];
 let indicePregunta = 0;
 let puntuacion = 0;
 let startTime; // Para medir el tiempo
-let rutaExamenActual = ""; 
+let idExamenActual = "";
 let tituloExamenActual = "";
 
 export function cargarListaExamenes(cursoAlumno) {
@@ -35,27 +35,35 @@ export function cargarListaExamenes(cursoAlumno) {
 // Asegúrate de que la función iniciarExamen reciba los dos parámetros
 window.iniciarExamen = async (id, titulo) => {
     try {
-        // Pedimos los datos del cuestionario por su ID
-        const docSnap = await getDoc(doc(db, "cuestionarios", id));
+        console.log("Intentando cargar examen con ID:", id); // Depuración
+        
+        const docRef = doc(db, "cuestionarios", id);
+        const docSnap = await getDoc(docRef);
         
         if (docSnap.exists()) {
             const datos = docSnap.data();
-            preguntasActuales = datos.preguntas || [];
             
-            if (preguntasActuales.length === 0) {
-                return alert("Este cuestionario aún no tiene preguntas configuradas.");
+            // Verificamos si hay preguntas guardadas en la nube
+            if (!datos.preguntas || datos.preguntas.length === 0) {
+                alert("Este cuestionario aún no tiene preguntas guardadas en la nube. Ve al administrador y pulsa 'Guardar Cambios'.");
+                return;
             }
 
-            idExamenActual = id; // Guardamos el ID para los resultados
+            preguntasActuales = datos.preguntas;
+            idExamenActual = id; // <--- Ahora sí funcionará
             tituloExamenActual = titulo;
             indicePregunta = 0;
             puntuacion = 0;
             startTime = Date.now();
             
             mostrarPregunta();
+        } else {
+            alert("El cuestionario no existe en la base de datos.");
         }
     } catch (e) {
-        alert("Error al conectar con la base de datos.");
+        // CAMBIO CRÍTICO: Ahora nos dirá el error real en la consola
+        console.error("Error detallado:", e);
+        alert("Error técnico: " + e.message); 
     }
 };
 
@@ -163,13 +171,15 @@ async function mostrarResultado() {
     try {
         await addDoc(collection(db, "resultados"), {
             email: auth.currentUser.email,
-            quizRuta: rutaExamenActual,
+            quizId: idExamenActual,      // Guardamos el ID del documento
             quizTitulo: tituloExamenActual,
-            nota: notaFinal,
+            nota: parseFloat(notaFinal),
             tiempo: tiempoTexto,
             fecha: serverTimestamp()
         });
-    } catch (e) { console.error("Error al guardar nota:", e); }
+    } catch (e) {
+        console.error("Error al guardar resultado:", e);
+    }
 
     // (El resto del innerHTML de mostrarResultado se mantiene igual)
     contenedor.innerHTML = `
