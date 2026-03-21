@@ -524,3 +524,22 @@ window.exportarResultadosExcel = () => {
     link.click();
     document.body.removeChild(link);
 };
+
+window.cerrarEditor = () => {
+    // 1. "Borramos" los datos de la memoria
+    idQuizActual = null;
+    quizEnEdicion = [];
+
+    // 2. Limpiamos visualmente el título y la lista
+    const tituloEditor = document.getElementById('editor-titulo-quiz');
+    if (tituloEditor) tituloEditor.innerText = "Editor de Cuestionarios";
+    
+    const listaPreguntas = document.getElementById('lista-preguntas-editor');
+    if (listaPreguntas) listaPreguntas.innerHTML = "";
+
+    // 3. Volvemos a la pestaña principal (Cuestionarios)
+    document.getElementById('tab-btn-quizzes').click();
+
+    // 4. Refrescamos el editor para que muestre el mensaje de "Editor en reposo"
+    renderizarEditor();
+};
