@@ -112,7 +112,6 @@ window.cargarQuizAlEditor = async (ruta) => {
         if(btnEditor) btnEditor.click();
         
         renderizarEditor();
-        alert("Cuestionario cargado correctamente desde el servidor.");
     } catch (e) {
         alert("Error: " + e.message);
     }
