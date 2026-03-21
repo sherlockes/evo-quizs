@@ -224,34 +224,47 @@ export async function importarAlumnosCSV(lista) {
     let exitos = 0;
     let errores = 0;
 
-    // Función auxiliar para evitar errores de .trim()
-    const limpiar = (valor) => {
-        if (valor === null || valor === undefined) return "";
-        return String(valor).trim();
-    };
+    const limpiar = (v) => v ? String(v).trim() : "";
 
     for (const fila of lista) {
-        // Obtenemos los valores de las columnas
-        // Intentamos por nombre de cabecera o por posición (0, 1, 2)
-        const email = limpiar(fila.email || Object.values(fila)[0]);
-        const pass = limpiar(fila.password || Object.values(fila)[1]);
-        const curso = limpiar(fila.curso || Object.values(fila)[2]);
+        // Extraemos valores intentando detectar si vienen por nombre de columna o por posición
+        let email = limpiar(fila.email || fila['email'] || Object.values(fila)[0]);
+        let pass = limpiar(fila.password || fila['password'] || Object.values(fila)[1]);
+        let curso = limpiar(fila.curso || fila['curso'] || Object.values(fila)[2]);
 
-        // Si la fila está vacía (común al final de los CSV), la saltamos sin contar error
-        if (!email && !pass) continue;
+        // --- DETECCIÓN DE ERROR DE SEPARADOR (Coma vs Punto y coma) ---
+        // Si el email contiene un punto y coma, es que Excel lo guardó mal
+        if (email.includes(';')) {
+            const partes = email.split(';');
+            email = limpiar(partes[0]);
+            pass = limpiar(partes[1]);
+            curso = limpiar(partes[2]);
+        }
 
-        // Si falta algún dato crítico, contamos error y avisamos en consola
         if (!email || !pass || !curso) {
-            console.error("Fila incompleta detectada:", fila);
+            console.warn("Fila incompleta o mal formateada:", fila);
             errores++;
             continue;
         }
 
         try {
-            await crearAlumnoManual(email, pass, curso);
+            // Intentamos crear en Auth
+            try {
+                await createUserWithEmailAndPassword(secondaryAuth, email, pass);
+                await signOut(secondaryAuth);
+            } catch (authError) {
+                // Si el error es que ya existe, no lo contamos como fallo crítico
+                if (authError.code !== 'auth/email-already-in-use') {
+                    throw authError;
+                }
+                console.log(`El usuario ${email} ya existe en Auth, actualizando datos...`);
+            }
+
+            // Guardamos/Actualizamos en Firestore
+            await setDoc(doc(db, "usuarios", email), { email, curso, rol: "alumno" });
             exitos++;
         } catch (e) {
-            console.error("Error al crear usuario:", email, e.message);
+            console.error(`Error crítico con ${email}:`, e.message);
             errores++;
         }
     }

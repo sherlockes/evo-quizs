@@ -280,8 +280,10 @@
             if (!archivo) return;
 
             Papa.parse(archivo, {
-                header: true, // Esto busca la fila de 'email,password,curso'
+                header: true,
                 skipEmptyLines: true,
+                dynamicTyping: true,
+                // Eliminamos la restricción de coma y dejamos que PapaParse decida
                 complete: async (results) => {
                     if (results.data.length === 0) {
                         alert("El archivo CSV parece estar vacío.");
