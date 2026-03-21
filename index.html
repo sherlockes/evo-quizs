@@ -31,7 +31,28 @@
         .btn-opcion:disabled {
             cursor: default;
         }
-            </style>
+        /* Estilos para el Editor Integrado */
+        .editor-card { 
+            background: #f9f9f9; 
+            padding: 20px; 
+            border-radius: 8px; 
+            border: 1px solid #ddd; 
+            margin-top: 20px; 
+            text-align: left;
+        }
+        .pregunta-edit {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .pregunta-edit input, .pregunta-edit textarea {
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        .btn-delete-preg { background: #ff4d4d; color: white; padding: 5px 10px; float: right; }
+     </style>
 </head>
 <body>
 
@@ -46,9 +67,27 @@
 
     <div id="section-admin" class="hidden">
         <h2 style="color: #28a745;">Administración</h2>
-        <div style="display: flex; justify-content: space-between;">
-            <button class="btn-tab active" id="tab-btn-alumnos">👥 Alumnos</button>
-            <button class="btn-tab" id="tab-btn-quizzes">📝 Cuestionarios</button>
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <button class="btn-tab active" onclick="mostrarTab('tab-alumnos')">Alumnos</button>
+            <button class="btn-tab" onclick="mostrarTab('tab-quizzes')">Cuestionarios</button>
+            <button class="btn-tab" onclick="mostrarTab('tab-editor')">Editor JSON</button>
+        </div>
+
+        <div id="tab-editor" class="tab-content hidden">
+            <div class="editor-card">
+                <h3>Editor de Cuestionarios</h3>
+                <p style="font-size: 0.8rem; color: #666;">Importa un JSON existente o crea uno nuevo desde cero.</p>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <input type="file" id="importar-json" accept=".json" style="display: none;">
+                    <button class="btn-primary" style="width: auto;" onclick="document.getElementById('importar-json').click()">📂 Importar JSON</button>
+                    <button class="btn-primary" style="width: auto; background: #28a745;" onclick="nuevaPregunta()">➕ Añadir Pregunta</button>
+                    <button class="btn-primary" style="width: auto; background: #6c757d;" onclick="descargarJSON()">💾 Descargar JSON</button>
+                </div>
+
+                <div id="lista-preguntas-editor">
+                    </div>
+            </div>
         </div>
 
         <div id="view-alumnos" class="admin-content">

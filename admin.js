@@ -95,3 +95,63 @@ export async function guardarNuevoQuiz(datos) {
         throw e;
     }
 }
+
+let quizEnEdicion = [];
+
+// Función para renderizar el editor
+function renderizarEditor() {
+    const contenedor = document.getElementById('lista-preguntas-editor');
+    contenedor.innerHTML = "";
+
+    quizEnEdicion.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = "pregunta-edit";
+        div.innerHTML = `
+            <button class="btn-delete-preg" onclick="borrarPreguntaEditor(${index})">Eliminar</button>
+            <label><b>Pregunta ${index + 1}:</b></label>
+            <input type="text" value="${item.pregunta}" onchange="actualizarDato(${index}, 'pregunta', this.value)">
+            
+            <label>Opciones (marca la correcta):</label>
+            ${item.opciones.map((opt, i) => `
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 5px;">
+                    <input type="radio" name="correcta-${index}" ${item.respuestaCorrecta === i ? 'checked' : ''} onchange="actualizarDato(${index}, 'respuestaCorrecta', ${i})">
+                    <input type="text" value="${opt}" onchange="actualizarOpcion(${index}, ${i}, this.value)">
+                </div>
+            `).join('')}
+            
+            <label>Explicación:</label>
+            <textarea style="width: 100%;" onchange="actualizarDato(${index}, 'explicacion', this.value)">${item.explicacion || ''}</textarea>
+        `;
+        contenedor.appendChild(div);
+    });
+}
+
+// Funciones globales para el editor
+window.actualizarDato = (i, campo, valor) => { quizEnEdicion[i][campo] = valor; };
+window.actualizarOpcion = (pIndex, oIndex, valor) => { quizEnEdicion[pIndex].opciones[oIndex] = valor; };
+window.nuevaPregunta = () => {
+    quizEnEdicion.push({ pregunta: "", opciones: ["", "", "", ""], respuestaCorrecta: 0, explicacion: "" });
+    renderizarEditor();
+};
+window.borrarPreguntaEditor = (i) => { quizEnEdicion.splice(i, 1); renderizarEditor(); };
+
+window.descargarJSON = () => {
+    const blob = new Blob([JSON.stringify(quizEnEdicion, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = "nuevo_cuestionario.json";
+    a.click();
+};
+
+// Escuchador para importar archivos
+document.addEventListener('change', e => {
+    if (e.target.id === 'importar-json') {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            quizEnEdicion = JSON.parse(event.target.result);
+            renderizarEditor();
+        };
+        reader.readAsText(e.target.files[0]);
+    }
+});
