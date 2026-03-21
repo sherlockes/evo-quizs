@@ -9,19 +9,52 @@ import { createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com
 // Variable global para el editor
 let quizEnEdicion = [];
 
-// --- GESTIÓN DE ALUMNOS ---
+// --- GESTIÓN DE ALUMNOS (Con ordenado por Curso y Email) ---
 export function activarSincronizacionAlumnos() {
     onSnapshot(collection(db, "usuarios"), (snap) => {
         const t = document.getElementById('cuerpo-tabla');
         if (!t) return;
         t.innerHTML = "";
+
+        // 1. Pasamos los datos a un array para poder manipularlos
+        let listaAlumnos = [];
         snap.forEach(d => {
             const u = d.data();
-            if(u.email === CORREO_ADMIN) return;
-            t.innerHTML += `<tr><td>${u.email}</td><td><b>${u.curso}</b></td><td>
-                <button class="btn-accion btn-edit" onclick="editarAlumno('${d.id}','${u.curso}')">E</button>
-                <button class="btn-accion btn-borrar" onclick="borrarAlumno('${d.id}')">X</button>
-            </td></tr>`;
+            // Filtramos al administrador para que no aparezca en la lista
+            if(u.email !== CORREO_ADMIN) {
+                listaAlumnos.push({ id: d.id, ...u });
+            }
+        });
+
+        // 2. Aplicamos el ordenado: primero por CURSO y luego por EMAIL
+        listaAlumnos.sort((a, b) => {
+            // Convertimos a minúsculas para que el orden sea real (A-Z)
+            const cursoA = String(a.curso).toLowerCase();
+            const cursoB = String(b.curso).toLowerCase();
+            const emailA = String(a.email).toLowerCase();
+            const emailB = String(b.email).toLowerCase();
+
+            // Comparar por curso
+            if (cursoA < cursoB) return -1;
+            if (cursoA > cursoB) return 1;
+
+            // Si el curso es el mismo, comparar por email
+            if (emailA < emailB) return -1;
+            if (emailA > emailB) return 1;
+
+            return 0;
+        });
+
+        // 3. Renderizamos la tabla con la lista ya ordenada
+        listaAlumnos.forEach(u => {
+            t.innerHTML += `<tr>
+                <td>${u.email}</td>
+                <td><b>${u.curso}</b></td>
+                <td>
+                    <button class="btn-accion btn-edit" onclick="editarAlumno('${u.id}','${u.curso}')">E</button>
+                    <button class="btn-accion btn-borrar" onclick="borrarAlumno('${u.id}')">X</button>
+                </td>
+            </tr>`;
         });
     });
 }
