@@ -43,7 +43,8 @@ export async function crearAlumnoManual(email, pass, curso) {
     } catch (e) { throw e; }
 }
 
-// --- GESTIÓN DE CUESTIONARIOS ---
+// --- GESTIÓN DE CUESTIONARIOS (Actualizada) ---
+
 export function activarSincronizacionQuizzes() {
     onSnapshot(collection(db, "cuestionarios"), (snap) => {
         const tabla = document.getElementById('tabla-quizzes');
@@ -58,14 +59,36 @@ export function activarSincronizacionQuizzes() {
                     <td><b>${q.curso}</b></td>
                     <td>${q.activo ? '✅' : '❌'}</td>
                     <td style="white-space: nowrap;">
-                        <button class="btn-accion" style="background:#6f42c1; color:white;" onclick="cargarQuizAlEditor('${q.ruta}')" title="Editar este JSON">✏️</button>
-                        <button class="btn-accion btn-edit" onclick="alternarEstadoQuiz('${id}', ${q.activo})">On/Off</button>
-                        <button class="btn-accion btn-borrar" onclick="borrarQuiz('${id}')">X</button>
+                        <button class="btn-accion" style="background:#ffc107; color:#333;" onclick="editarInfoQuiz('${id}', '${q.titulo}', '${q.curso}')" title="Editar Título/Curso">🏷️</button>
+                        
+                        <button class="btn-accion" style="background:#6f42c1; color:white;" onclick="cargarQuizAlEditor('${q.ruta}')" title="Editar preguntas">✏️</button>
+                        
+                        <button class="btn-accion btn-edit" onclick="alternarEstadoQuiz('${id}', ${q.activo})" title="On/Off">Power</button>
+                        <button class="btn-accion btn-borrar" onclick="borrarQuiz('${id}')" title="Eliminar">X</button>
                     </td>
                 </tr>`;
         });
     });
 }
+
+// Nueva función para editar metadatos del quiz
+window.editarInfoQuiz = async (id, tituloActual, cursoActual) => {
+    const nuevoTitulo = prompt("Nuevo título del cuestionario:", tituloActual);
+    if (nuevoTitulo === null) return; // Cancelado
+
+    const nuevoCurso = prompt("Nuevo curso asignado:", cursoActual);
+    if (nuevoCurso === null) return; // Cancelado
+
+    try {
+        await updateDoc(doc(db, "cuestionarios", id), {
+            titulo: nuevoTitulo,
+            curso: nuevoCurso
+        });
+        // No hace falta alert, el onSnapshot actualizará la tabla solo
+    } catch (e) {
+        alert("Error al actualizar: " + e.message);
+    }
+};
 
 // Esta función permite cargar un JSON que ya está en GitHub/Vercel al editor
 window.cargarQuizAlEditor = async (ruta) => {
