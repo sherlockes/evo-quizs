@@ -1,9 +1,12 @@
-import { db } from './config.js';
+import { db, auth } from './config.js';
 import { collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 let preguntasActuales = [];
 let indicePregunta = 0;
 let puntuacion = 0;
+let startTime; // Para medir el tiempo
+let rutaExamenActual = ""; 
+let tituloExamenActual = "";
 
 export function cargarListaExamenes(cursoAlumno) {
     const q = query(collection(db, "cuestionarios"), where("curso", "==", cursoAlumno), where("activo", "==", true));
@@ -34,14 +37,19 @@ window.iniciarExamen = async (ruta) => {
         // Barajar preguntas si quieres (opcional, como en tu otro script)
         preguntasActuales.sort(() => Math.random() - 0.5);
         
+        // Inicializamos variables de seguimiento
+        rutaExamenActual = ruta;
+        tituloExamenActual = titulo;
         indicePregunta = 0;
         puntuacion = 0;
+        startTime = Date.now(); // Empezamos a contar el tiempo
         
         mostrarPregunta();
     } catch (e) {
         alert("Error al cargar el archivo JSON: " + e.message);
     }
 };
+
 
 function mostrarPregunta() {
     const contenedor = document.getElementById('section-alumno');
@@ -131,19 +139,36 @@ window.proximaPregunta = () => {
     }
 };
 
-function mostrarResultado() {
+async function mostrarResultado() {
     const contenedor = document.getElementById('section-alumno');
     const notaFinal = ((puntuacion / preguntasActuales.length) * 10).toFixed(1);
     
+    // Calcular tiempo transcurrido
+    const endTime = Date.now();
+    const segundosTotales = Math.floor((endTime - startTime) / 1000);
+    const minutos = Math.floor(segundosTotales / 60);
+    const segundos = segundosTotales % 60;
+    const tiempoTexto = `${minutos}m ${segundos}s`;
+
+    // --- GUARDAR RESULTADO EN FIREBASE ---
+    try {
+        await addDoc(collection(db, "resultados"), {
+            email: auth.currentUser.email,
+            quizRuta: rutaExamenActual,
+            quizTitulo: tituloExamenActual,
+            nota: notaFinal,
+            tiempo: tiempoTexto,
+            fecha: serverTimestamp()
+        });
+    } catch (e) { console.error("Error al guardar nota:", e); }
+
+    // (El resto del innerHTML de mostrarResultado se mantiene igual)
     contenedor.innerHTML = `
         <div style="padding: 40px 20px; text-align: center;">
-            <h2 style="color: #333;">Cuestionario Finalizado</h2>
-            <div style="font-size: 5rem; font-weight: bold; color: #007bff; margin: 15px 0; text-shadow: 2px 2px 10px rgba(0,123,255,0.1);">${notaFinal}</div>
-            <div style="background: #f1f8ff; color: #007bff; padding: 10px 20px; border-radius: 30px; display: inline-block; font-weight: bold; margin-bottom: 30px;">
-                ${puntuacion} aciertos de ${preguntasActuales.length}
-            </div>
-            <br>
-            <button class="btn-primary" onclick="window.location.reload()" style="max-width: 280px;">Finalizar y Salir</button>
+            <h2>Cuestionario Finalizado</h2>
+            <div style="font-size: 5rem; font-weight: bold; color: #007bff; margin: 15px 0;">${notaFinal}</div>
+            <p>Tiempo total: ${tiempoTexto}</p>
+            <button class="btn-primary" onclick="window.location.reload()">Finalizar y Salir</button>
         </div>
     `;
 }

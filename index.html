@@ -188,6 +188,26 @@
     </div>
 </div>
 
+<div id="view-resultados" class="admin-content hidden tab-content">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h4 id="res-titulo-quiz">Resultados</h4>
+        <button class="btn-accion" style="background:#6c757d; color:white;" onclick="volverAQuizzes()">← Volver</button>
+    </div>
+    <div class="tabla-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Alumno</th>
+                    <th>Tiempo</th>
+                    <th>Nota</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-resultados-body"></tbody>
+        </table>
+    </div>
+</div>
+
 <script type="module">
     import { auth, CORREO_ADMIN, db } from './config.js';
     import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";

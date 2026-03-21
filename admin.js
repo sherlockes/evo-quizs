@@ -1,7 +1,7 @@
 import { db, secondaryAuth, CORREO_ADMIN } from './config.js';
 
 import { 
-    collection, onSnapshot, doc, updateDoc, deleteDoc, addDoc, setDoc, getDocs
+    collection, onSnapshot, doc, updateDoc, deleteDoc, addDoc, setDoc, getDocs, query, where, orderBy 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import { createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -116,20 +116,68 @@ export function activarSincronizacionQuizzes() {
                     <td>${q.activo ? '✅' : '❌'}</td>
                     <td style="white-space: nowrap;">
                         <button class="btn-accion" style="background:#6f42c1; color:white;" 
-                            onclick="editarInfoQuiz('${id}', '${q.titulo}', '${q.curso}', '${q.ruta}')" title="Editar Título/Curso/Ruta">🏷️</button>
+                            onclick="verResultadosQuiz('${q.ruta}', '${q.titulo}')" title="Ver Resultados">📊</button>
                         
                         <button class="btn-accion" style="background:#6f42c1; color:white;" 
-                            onclick="cargarQuizAlEditor('${q.ruta}')" title="Editar preguntas del JSON">✏️</button>
+                            onclick="editarInfoQuiz('${id}', '${q.titulo}', '${q.curso}', '${q.ruta}')">🏷️</button>
                         
                         <button class="btn-accion" style="background:#6f42c1; color:white;" 
-                            onclick="alternarEstadoQuiz('${id}', ${q.activo})" title="Activar/Desactivar">✔️</button>
+                            onclick="cargarQuizAlEditor('${q.ruta}')">✏️</button>
                         
-                        <button class="btn-accion btn-borrar" onclick="borrarQuiz('${id}')" title="Eliminar">X</button>
+                        <button class="btn-accion btn-borrar" onclick="borrarQuiz('${id}')">X</button>
                     </td>
                 </tr>`;
         });
     });
 }
+
+// Función para mostrar los resultados de un quiz específico
+window.verResultadosQuiz = async (ruta, titulo) => {
+    const viewQuizzes = document.getElementById('view-quizzes');
+    const viewResultados = document.getElementById('view-resultados');
+    const cuerpoTabla = document.getElementById('tabla-resultados-body');
+    const tituloRes = document.getElementById('res-titulo-quiz');
+
+    tituloRes.innerText = `Resultados: ${titulo}`;
+    cuerpoTabla.innerHTML = "<tr><td colspan='4'>Cargando...</td></tr>";
+
+    // Cambiar vista
+    viewQuizzes.classList.add('hidden');
+    viewResultados.classList.remove('hidden');
+
+    // Consulta a Firestore: Buscamos resultados de esta ruta ordenados por fecha
+    const q = query(
+        collection(db, "resultados"), 
+        where("quizRuta", "==", ruta),
+        orderBy("fecha", "desc")
+    );
+
+    const snap = await getDocs(q);
+    cuerpoTabla.innerHTML = "";
+
+    if (snap.empty) {
+        cuerpoTabla.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Aún no hay intentos registrados.</td></tr>";
+        return;
+    }
+
+    snap.forEach(d => {
+        const res = d.data();
+        const fecha = res.fecha?.toDate().toLocaleString() || "---";
+        cuerpoTabla.innerHTML += `
+            <tr>
+                <td>${fecha}</td>
+                <td>${res.email}</td>
+                <td>${res.tiempo}</td>
+                <td style="font-weight:bold; color:${res.nota >= 5 ? 'green' : 'red'}">${res.nota}</td>
+            </tr>
+        `;
+    });
+};
+
+window.volverAQuizzes = () => {
+    document.getElementById('view-resultados').classList.add('hidden');
+    document.getElementById('view-quizzes').classList.remove('hidden');
+};
 
 // Función para editar todos los metadatos (Título, Curso y Ruta)
 window.editarInfoQuiz = async (id, tituloActual, cursoActual, rutaActual) => {
