@@ -101,6 +101,7 @@ export async function crearAlumnoManual(email, pass, curso) {
 }
 
 // --- GESTIÓN DE CUESTIONARIOS ---
+// --- GESTIÓN DE CUESTIONARIOS ---
 export function activarSincronizacionQuizzes() {
     onSnapshot(collection(db, "cuestionarios"), (snap) => {
         const tabla = document.getElementById('tabla-quizzes');
@@ -109,20 +110,27 @@ export function activarSincronizacionQuizzes() {
         snap.forEach(docSnap => {
             const q = docSnap.data();
             const id = docSnap.id;
+            
+            // Definimos el color del check: verde si está activo, gris si no
+            const colorCheck = q.activo ? "#28a745" : "#6c757d";
+
             tabla.innerHTML += `
                 <tr>
                     <td>${q.titulo}</td>
                     <td><b>${q.curso}</b></td>
-                    <td>${q.activo ? '✅' : '❌'}</td>
+                    <td style="text-align:center;">${q.activo ? '✅' : '❌'}</td>
                     <td style="white-space: nowrap;">
                         <button class="btn-accion" style="background:#6f42c1; color:white;" 
-                            onclick="verResultadosQuiz('${q.ruta}', '${q.titulo}')" title="Ver Resultados">📊</button>
+                            onclick="verResultadosQuiz('${q.ruta}', '${q.titulo}')">📊</button>
                         
                         <button class="btn-accion" style="background:#6f42c1; color:white;" 
-                            onclick="editarInfoQuiz('${id}', '${q.titulo}', '${q.curso}', '${q.ruta}')">🏷️</button>
+                            onclick="editarInfoQuiz('${id}', '${q.titulo}', '${q.curso}', '${q.ruta}', ${q.activo})">🏷️</button>
                         
                         <button class="btn-accion" style="background:#6f42c1; color:white;" 
                             onclick="cargarQuizAlEditor('${q.ruta}')">✏️</button>
+                        
+                        <button class="btn-accion" style="background:${colorCheck}; color:white;" 
+                            onclick="alternarEstadoQuiz('${id}', ${q.activo})" title="Activar/Desactivar">✔️</button>
                         
                         <button class="btn-accion btn-borrar" onclick="borrarQuiz('${id}')">X</button>
                     </td>
@@ -130,6 +138,31 @@ export function activarSincronizacionQuizzes() {
         });
     });
 }
+
+// Actualizamos la edición para incluir el estado activo
+window.editarInfoQuiz = async (id, tituloActual, cursoActual, rutaActual, activoActual) => {
+    const nuevoTitulo = prompt("Nuevo título:", tituloActual);
+    if (nuevoTitulo === null) return;
+
+    const nuevoCurso = prompt("Nuevo curso:", cursoActual);
+    if (nuevoCurso === null) return;
+
+    const nuevaRuta = prompt("Ruta del archivo:", rutaActual);
+    if (nuevaRuta === null) return;
+
+    const nuevoEstado = confirm(`El cuestionario está actualmente ${activoActual ? 'ACTIVO' : 'DESACTIVADO'}. ¿Deseas que esté ACTIVO?`);
+
+    try {
+        await updateDoc(doc(db, "cuestionarios", id), {
+            titulo: nuevoTitulo,
+            curso: nuevoCurso,
+            ruta: nuevaRuta,
+            activo: nuevoEstado
+        });
+    } catch (e) {
+        alert("Error al actualizar: " + e.message);
+    }
+};
 
 // Función para mostrar los resultados de un quiz específico
 window.verResultadosQuiz = async (ruta, titulo) => {
@@ -179,27 +212,6 @@ window.volverAQuizzes = () => {
     document.getElementById('view-quizzes').classList.remove('hidden');
 };
 
-// Función para editar todos los metadatos (Título, Curso y Ruta)
-window.editarInfoQuiz = async (id, tituloActual, cursoActual, rutaActual) => {
-    const nuevoTitulo = prompt("Nuevo título del cuestionario:", tituloActual);
-    if (nuevoTitulo === null) return;
-
-    const nuevoCurso = prompt("Nuevo curso:", cursoActual);
-    if (nuevoCurso === null) return;
-
-    const nuevaRuta = prompt("Ruta del archivo (ej: cuestionarios/test.json):", rutaActual);
-    if (nuevaRuta === null) return;
-
-    try {
-        await updateDoc(doc(db, "cuestionarios", id), {
-            titulo: nuevoTitulo,
-            curso: nuevoCurso,
-            ruta: nuevaRuta
-        });
-    } catch (e) {
-        alert("Error al actualizar: " + e.message);
-    }
-};
 
 window.alternarEstadoQuiz = async (id, estado) => {
     await updateDoc(doc(db, "cuestionarios", id), { activo: !estado });
