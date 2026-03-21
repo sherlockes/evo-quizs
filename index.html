@@ -205,14 +205,16 @@
 </div>
 
 <div id="view-resultados" class="admin-content hidden tab-content">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+    <button onclick="volverAQuizzes()" 
+            style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 24px; cursor: pointer; color: #666; line-height: 1;">
+        &times;
+    </button>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-right: 30px;">
         <h4 id="res-titulo-quiz" style="margin:0;">Resultados</h4>
         <div style="display: flex; gap: 8px;">
-            <button class="btn-accion" style="background:#28a745; color:white; padding: 8px 15px;" onclick="exportarResultadosExcel()">📥 Exportar Excel</button>
-            
-            <button class="btn-accion" style="background:#dc3545; color:white; padding: 8px 15px;" onclick="borrarResultadosQuiz()">🗑️ Limpiar Notas</button>
-            
-            <button class="btn-accion" style="background:#6c757d; color:white; padding: 8px 15px;" onclick="volverAQuizzes()">← Volver</button>
+            <button class="btn-accion" style="background:#28a745; color:white; padding: 8px 15px;" onclick="exportarResultadosExcel()">📥 Exportar</button>
+            <button class="btn-accion" style="background:#dc3545; color:white; padding: 8px 15px;" onclick="borrarResultadosQuiz()">🗑️ Limpiar</button>
         </div>
     </div>
     <div class="tabla-container">
