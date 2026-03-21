@@ -9,6 +9,7 @@ import { createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com
 // Variable global para el editor
 let quizEnEdicion = [];
 let idQuizActual = null;
+let infoQuizActual = { titulo: "", curso: "" };
 let idQuizResultadosActual = null; // Para saber qué estamos exportando/borrando
 let datosResultadosActuales = [];  // Para guardar temporalmente lo que exportaremos
 
@@ -226,21 +227,18 @@ window.cargarQuizAlEditor = async (id) => {
         idQuizActual = id;
         const docRef = doc(db, "cuestionarios", id);
         const docSnap = await getDoc(docRef);
-        
         if (docSnap.exists()) {
             const datos = docSnap.data();
-    
-            // --- ACTUALIZAMOS EL TÍTULO EN LA INTERFAZ ---
-            document.getElementById('editor-titulo-quiz').innerText = `Editando: ${datos.titulo} (${datos.curso})`;
-
-            // Si el quiz es nuevo y no tiene preguntas aún, inicializamos array vacío
-            quizEnEdicion = datos.preguntas || [];
             
+            // GUARDAMOS LA INFO AQUÍ
+            infoQuizActual = { titulo: datos.titulo, curso: datos.curso }; 
+            
+            quizEnEdicion = datos.preguntas || [];
             document.getElementById('tab-btn-editor').click();
-            renderizarEditor();
+            renderizarEditor(); // Esto ya se encargará de poner el título
         }
     } catch (e) {
-        alert("Error al acceder a la base de datos: " + e.message);
+        alert("Error: " + e.message);
     }
 };
 
@@ -303,8 +301,22 @@ export async function guardarNuevoQuiz(datos) {
 // --- LÓGICA DEL EDITOR JSON ---
 export function renderizarEditor() {
     const contenedor = document.getElementById('lista-preguntas-editor');
+    const tituloEditor = document.getElementById('editor-titulo-quiz');
     if (!contenedor) return;
     contenedor.innerHTML = "";
+
+    // SI HAY UN CUESTIONARIO ACTIVO, ACTUALIZAMOS EL TÍTULO CON EL CONTADOR
+    if (idQuizActual && tituloEditor) {
+        const n = quizEnEdicion.length;
+        const textoPreguntas = n === 1 ? "1 pregunta" : `${n} preguntas`;
+        tituloEditor.innerText = `Editando: ${infoQuizActual.titulo} (${infoQuizActual.curso} - ${textoPreguntas})`;
+    }
+
+    if (!idQuizActual) {
+        if (tituloEditor) tituloEditor.innerText = "Editor de Cuestionarios";
+        contenedor.innerHTML = `<div style="text-align:center; padding:50px; color:#666;"><h3>Editor en reposo</h3><p>Pulsa Importar PC o + Pregunta para empezar.</p></div>`;
+        return;
+    }
 
     if (quizEnEdicion.length === 0) {
         contenedor.innerHTML = '<p style="text-align:center; color:#999; padding:20px;">El editor está vacío.</p>';

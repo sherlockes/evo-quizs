@@ -99,6 +99,21 @@
             color: #000 !important;
             transform: scale(1.1);
         }
+
+        #lista-preguntas-editor {
+            /* Eliminamos alturas fijas y scrolls internos */
+            height: auto; 
+            max-height: none;
+            overflow: visible; 
+            margin-top: 10px;
+        }
+
+        /* Opcional: Para que el contenedor principal se vea bien con mucho contenido */
+        .container {
+            height: auto;
+            min-height: 90vh;
+            overflow: visible;
+        }
     </style>
 </head>
 <body>
@@ -196,7 +211,7 @@
                 </button>
             </div>
 
-            <div class="herramientas-editor" style="display: flex; gap: 5px; margin-bottom: 15px;">
+            <div class="herramientas-editor" style="display: flex; gap: 5px; margin-bottom: 15px; position: sticky; top: 0; background: white; z-index: 100; padding: 10px 0; border-bottom: 1px solid #eee;">
                 <input type="file" id="importar-json" accept=".json" style="display:none">
                 <button style="background:#6c757d; color:white; flex:1;" onclick="document.getElementById('importar-json').click()">📂 Importar PC</button>
                 <button style="background:#28a745; color:white; flex:1;" onclick="nuevaPregunta()">➕ Pregunta</button>
