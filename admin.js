@@ -9,6 +9,8 @@ import { createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com
 // Variable global para el editor
 let quizEnEdicion = [];
 let idQuizActual = null;
+let idQuizResultadosActual = null; // Para saber qué estamos exportando/borrando
+let datosResultadosActuales = [];  // Para guardar temporalmente lo que exportaremos
 
 // --- GESTIÓN DE ALUMNOS (Con ordenado por Curso y Email) ---
 export function activarSincronizacionAlumnos() {
@@ -161,6 +163,7 @@ window.editarInfoQuiz = async (id, tituloActual, cursoActual, rutaActual, activo
 
 // Función para mostrar los resultados de un quiz específico
 window.verResultadosQuiz = async (id, titulo) => {
+    idQuizResultadosActual = id; // Guardamos el ID para usarlo luego
     const viewQuizzes = document.getElementById('view-quizzes');
     const viewResultados = document.getElementById('view-resultados');
     const cuerpoTabla = document.getElementById('tabla-resultados-body');
@@ -191,6 +194,7 @@ window.verResultadosQuiz = async (id, titulo) => {
         snap.forEach(d => {
             const res = d.data();
             const fecha = res.fecha?.toDate().toLocaleString() || "---";
+            datosResultadosActuales.push({ fecha, email: res.email, tiempo: res.tiempo, nota: res.nota });
             cuerpoTabla.innerHTML += `
                 <tr>
                     <td>${fecha}</td>
@@ -450,3 +454,49 @@ export async function borrarTodosLosAlumnos() {
         throw e;
     }
 }
+
+// --- FUNCIÓN PARA BORRAR SOLO LOS RESULTADOS ---
+window.borrarResultadosQuiz = async () => {
+    if (!idQuizResultadosActual) return;
+    if (!confirm("¿Seguro que quieres borrar TODOS los resultados de este examen? Esta acción no se puede deshacer.")) return;
+
+    try {
+        const q = query(collection(db, "resultados"), where("quizId", "==", idQuizResultadosActual));
+        const snap = await getDocs(q);
+        
+        const promesas = snap.docs.map(d => deleteDoc(doc(db, "resultados", d.id)));
+        await Promise.all(promesas);
+
+        alert("Historial de notas eliminado.");
+        verResultadosQuiz(idQuizResultadosActual, document.getElementById('res-titulo-quiz').innerText.replace('Resultados: ', ''));
+    } catch (e) {
+        alert("Error al borrar: " + e.message);
+    }
+};
+
+// --- FUNCIÓN PARA EXPORTAR A EXCEL (CSV) LOS RESULTADOS ---
+window.exportarResultadosExcel = () => {
+    if (datosResultadosActuales.length === 0) return alert("No hay datos para exportar.");
+
+    const titulo = document.getElementById('res-titulo-quiz').innerText;
+    
+    // Cabecera del CSV
+    let csvContent = "\uFEFF"; // BOM para que Excel detecte bien los acentos
+    csvContent += "Fecha;Alumno;Tiempo;Nota\n";
+
+    // Contenido
+    datosResultadosActuales.forEach(r => {
+        csvContent += `${r.fecha};${r.email};${r.tiempo};${r.nota}\n`;
+    });
+
+    // Crear el archivo y descargarlo
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `${titulo.replace(':', '')}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
