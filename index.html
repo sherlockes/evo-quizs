@@ -142,14 +142,27 @@
 
         <div id="view-quizzes" class="admin-content hidden">
             <h4>Cuestionarios Activos</h4>
-            <div class="form-manual">
-                <input type="text" id="q-titulo" placeholder="Título">
-                <div class="flex-row">
-                    <input type="text" id="q-curso" placeholder="Curso">
-                    <input type="text" id="q-ruta" placeholder="Nombre archivo (ej: tema1.json)">
+            <div class="form-manual" style="display: flex; flex-direction: column; gap: 10px;">
+                <div class="flex-row" style="align-items: center;">
+                    <input type="text" id="q-titulo" placeholder="Título del cuestionario" style="flex-grow: 1; margin: 0;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; white-space: nowrap; cursor: pointer; padding: 0 5px;">
+                        <input type="checkbox" id="q-activo" checked style="width: auto; margin: 0;"> 
+                        <span>Habilitado</span>
+                    </label>
                 </div>
-                <label style="font-size: 13px;"><input type="checkbox" id="q-activo" checked> Habilitado</label>
-                <button class="btn-primary" id="btn-guardar-quiz" style="background:#6f42c1;">Registrar en Sistema</button>
+
+                <div class="flex-row" style="align-items: center;">
+                    <input type="text" id="q-curso" placeholder="Curso" maxlength="6" 
+                           style="width: 100px; text-align: center; margin: 0;">
+                    
+                    <input type="text" id="q-ruta" placeholder="Nombre archivo (ej: tema1.json)" 
+                           style="flex-grow: 1; margin: 0;">
+                    
+                    <button class="btn-primary" id="btn-guardar-quiz" 
+                            style="background:#546e7a; width: 100px; margin: 0; padding: 10px 0; font-size: 13px;">
+                        Guardar
+                    </button>
+                </div>
             </div>
             <div class="tabla-container">
                 <table>
