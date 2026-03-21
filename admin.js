@@ -120,13 +120,13 @@ export function activarSincronizacionQuizzes() {
                     <td><b>${q.curso}</b></td>
                     <td style="text-align:center;">${q.activo ? '✅' : '❌'}</td>
                     <td style="white-space: nowrap;">
-                        <button class="btn-accion" style="background:#6f42c1; color:white;" 
+                        <button class="btn-accion" style="background:#607d8b; color:white;" 
                             onclick="verResultadosQuiz('${q.ruta}', '${q.titulo}')">📊</button>
                         
-                        <button class="btn-accion" style="background:#6f42c1; color:white;" 
+                        <button class="btn-accion" style="background:#607d8b; color:white;" 
                             onclick="editarInfoQuiz('${id}', '${q.titulo}', '${q.curso}', '${q.ruta}', ${q.activo})">🏷️</button>
                         
-                        <button class="btn-accion" style="background:#6f42c1; color:white;" 
+                        <button class="btn-accion" style="background:#607d8b; color:white;" 
                             onclick="cargarQuizAlEditor('${q.ruta}')">✏️</button>
                         
                         <button class="btn-accion" style="background:${colorCheck}; color:white;" 
