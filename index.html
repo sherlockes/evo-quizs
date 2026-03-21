@@ -26,6 +26,30 @@
         th { background: #f1f1f1; }
         .btn-accion { padding: 4px 8px; font-size: 11px; width: auto; margin: 2px; }
         .btn-borrar { background: #dc3545; color: white; }
+
+        /* Diseño compactado para el editor */
+        .pregunta-edit { 
+            background: #fff; 
+            padding: 10px 15px; /* Reducido */
+            border-radius: 8px; 
+            margin-bottom: 10px; /* Reducido */
+            border: 1px solid #e0e0e0; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+        }
+        .pregunta-edit input[type="text"] {
+            margin: 4px 0; /* Más apretado */
+            padding: 8px;
+        }
+        .pregunta-edit textarea {
+            height: 40px; /* Altura inicial pequeña */
+            margin-top: 5px;
+        }
+        .opcion-fila {
+            display: flex; 
+            gap: 8px; 
+            align-items: center; 
+            margin-bottom: 2px;
+        }
     </style>
 </head>
 <body>

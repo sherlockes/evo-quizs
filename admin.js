@@ -96,32 +96,55 @@ export function renderizarEditor() {
     contenedor.innerHTML = "";
 
     if (quizEnEdicion.length === 0) {
-        contenedor.innerHTML = '<p style="text-align:center; color:#999;">Cuestionario vacío. Añade una pregunta.</p>';
+        contenedor.innerHTML = '<p style="text-align:center; color:#999; padding:20px;">Cuestionario vacío. Añade una pregunta para empezar.</p>';
         return;
     }
 
     quizEnEdicion.forEach((item, index) => {
         const div = document.createElement('div');
         div.className = "pregunta-edit";
+        // Añadimos un ID único para poder hacer scroll hasta aquí
+        div.id = `pregunta-id-${index}`; 
+        
         div.innerHTML = `
-            <button class="btn-borrar" style="float:right; width:auto;" onclick="borrarPreguntaEditor(${index})">X</button>
-            <label><b>Pregunta ${index + 1}:</b></label>
-            <input type="text" value="${item.pregunta}" onchange="actualizarDato(${index}, 'pregunta', this.value)">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                <label><b>#${index + 1}</b></label>
+                <button class="btn-borrar" style="width:auto; padding:2px 8px; font-size:10px;" onclick="borrarPreguntaEditor(${index})">Eliminar</button>
+            </div>
             
-            <label>Opciones:</label>
-            ${item.opciones.map((opt, i) => `
-                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 5px;">
-                    <input type="radio" name="correcta-${index}" ${item.respuestaCorrecta === i ? 'checked' : ''} onchange="actualizarDato(${index}, 'respuestaCorrecta', ${i})">
-                    <input type="text" value="${opt}" style="margin:0;" onchange="actualizarOpcion(${index}, ${i}, this.value)">
-                </div>
-            `).join('')}
+            <input type="text" placeholder="Escribe la pregunta..." value="${item.pregunta}" onchange="actualizarDato(${index}, 'pregunta', this.value)">
             
-            <label>Explicación:</label>
-            <textarea onchange="actualizarDato(${index}, 'explicacion', this.value)">${item.explicacion || ''}</textarea>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+                ${item.opciones.map((opt, i) => `
+                    <div class="opcion-fila">
+                        <input type="radio" name="correcta-${index}" ${item.respuestaCorrecta === i ? 'checked' : ''} onchange="actualizarDato(${index}, 'respuestaCorrecta', ${i})">
+                        <input type="text" placeholder="Opción ${i+1}" value="${opt}" style="margin:0;" onchange="actualizarOpcion(${index}, ${i}, this.value)">
+                    </div>
+                `).join('')}
+            </div>
+            
+            <textarea placeholder="Explicación (opcional)..." onchange="actualizarDato(${index}, 'explicacion', this.value)">${item.explicacion || ''}</textarea>
         `;
         contenedor.appendChild(div);
     });
 }
+
+// Nueva pregunta con Scroll Automático
+window.nuevaPregunta = () => {
+    quizEnEdicion.push({ pregunta: "", opciones: ["", "", "", ""], respuestaCorrecta: 0, explicacion: "" });
+    renderizarEditor();
+
+    // SCROLL AUTOMÁTICO:
+    // Esperamos un momento a que el navegador dibuje la nueva pregunta
+    setTimeout(() => {
+        const ultimaPregunta = document.getElementById(`pregunta-id-${quizEnEdicion.length - 1}`);
+        if (ultimaPregunta) {
+            ultimaPregunta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Ponemos el foco en el input de la nueva pregunta para empezar a escribir ya
+            ultimaPregunta.querySelector('input[type="text"]').focus();
+        }
+    }, 100);
+};
 
 window.actualizarDato = (i, campo, valor) => { quizEnEdicion[i][campo] = valor; };
 window.actualizarOpcion = (pIndex, oIndex, valor) => { quizEnEdicion[pIndex].opciones[oIndex] = valor; };
