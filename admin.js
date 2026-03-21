@@ -141,21 +141,16 @@ export function activarSincronizacionQuizzes() {
 }
 
 // Actualizamos la edición para incluir el estado activo
-window.editarInfoQuiz = async (id, tituloActual, cursoActual, rutaActual, activoActual) => {
+window.editarInfoQuiz = async (id, tituloActual, cursoActual) => {
     const nuevoTitulo = prompt("Nuevo título:", tituloActual);
     if (nuevoTitulo === null) return;
-
-    const nuevoCurso = prompt("Nuevo curso:", cursoActual);
+    const nuevoCurso = prompt("Nuevo curso (máx. 6 caracteres):", cursoActual);
     if (nuevoCurso === null) return;
-
-    const nuevaRuta = prompt("Ruta del archivo:", rutaActual);
-    if (nuevaRuta === null) return;
 
     try {
         await updateDoc(doc(db, "cuestionarios", id), {
-            titulo: nuevoTitulo,
-            curso: nuevoCurso,
-            ruta: nuevaRuta
+            titulo: nuevoTitulo.trim(),
+            curso: nuevoCurso.trim().substring(0, 6)
         });
     } catch (e) {
         alert("Error al actualizar: " + e.message);
@@ -234,7 +229,7 @@ window.cargarQuizAlEditor = async (id) => {
             infoQuizActual = { titulo: datos.titulo, curso: datos.curso }; 
             
             quizEnEdicion = datos.preguntas || [];
-            document.getElementById('tab-btn-editor').click();
+            showTab('view-editor');
             renderizarEditor(); // Esto ya se encargará de poner el título
         }
     } catch (e) {
@@ -549,8 +544,8 @@ window.cerrarEditor = () => {
     const listaPreguntas = document.getElementById('lista-preguntas-editor');
     if (listaPreguntas) listaPreguntas.innerHTML = "";
 
-    // 3. Volvemos a la pestaña principal (Cuestionarios)
-    document.getElementById('tab-btn-quizzes').click();
+    // Volvemos a la pestaña de cuestionarios marcando su botón
+    showTab('view-quizzes', 'tab-btn-quizzes');
 
     // 4. Refrescamos el editor para que muestre el mensaje de "Editor en reposo"
     renderizarEditor();
