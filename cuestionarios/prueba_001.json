@@ -1,0 +1,24 @@
+[
+  {
+    "pregunta": "¿Qué impacto tiene la radiación UV excesiva sobre la visión?",
+    "opciones": [
+      "Mejora la agudeza visual",
+      "Causa daltonismo",
+      "Provoca cataratas oculares",
+      "No afecta a los ojos"
+    ],
+    "respuestaCorrecta": 2,
+    "explicacion": "La falta de protección de la capa de ozono aumenta la incidencia de daños graves en el cristalino,."
+  },
+  {
+    "pregunta": "¿Cuál es el resumen de la 'Triple Amenaza Atmosférica' según los esquemas?",
+    "opciones": [
+      "Invernadero, Ozono y Lluvia Ácida",
+      "Viento, Lluvia y Nieve",
+      "CO2, O2 y N2",
+      "Tráfico, Industria y Volcanes"
+    ],
+    "respuestaCorrecta": 0,
+    "explicacion": "Son los tres grandes problemas globales: cambio climático, pérdida de ozono y acidificación,."
+  }
+]
