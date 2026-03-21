@@ -160,7 +160,7 @@ window.editarInfoQuiz = async (id, tituloActual, cursoActual, rutaActual, activo
 };
 
 // Función para mostrar los resultados de un quiz específico
-window.verResultadosQuiz = async (ruta, titulo) => {
+window.verResultadosQuiz = async (id, titulo) => {
     const viewQuizzes = document.getElementById('view-quizzes');
     const viewResultados = document.getElementById('view-resultados');
     const cuerpoTabla = document.getElementById('tabla-resultados-body');
@@ -169,37 +169,41 @@ window.verResultadosQuiz = async (ruta, titulo) => {
     tituloRes.innerText = `Resultados: ${titulo}`;
     cuerpoTabla.innerHTML = "<tr><td colspan='4'>Cargando...</td></tr>";
 
-    // Cambiar vista
     viewQuizzes.classList.add('hidden');
     viewResultados.classList.remove('hidden');
 
-    // Consulta a Firestore: Buscamos resultados de esta ruta ordenados por fecha
-    const q = query(
-        collection(db, "resultados"), 
-        where("quizRuta", "==", ruta),
-        orderBy("fecha", "desc")
-    );
+    try {
+        // Consulta directa y sencilla
+        const q = query(
+            collection(db, "resultados"), 
+            where("quizId", "==", id),
+            orderBy("fecha", "desc")
+        );
 
-    const snap = await getDocs(q);
-    cuerpoTabla.innerHTML = "";
+        const snap = await getDocs(q);
+        cuerpoTabla.innerHTML = "";
 
-    if (snap.empty) {
-        cuerpoTabla.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Aún no hay intentos registrados.</td></tr>";
-        return;
+        if (snap.empty) {
+            cuerpoTabla.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Sin intentos registrados.</td></tr>";
+            return;
+        }
+
+        snap.forEach(d => {
+            const res = d.data();
+            const fecha = res.fecha?.toDate().toLocaleString() || "---";
+            cuerpoTabla.innerHTML += `
+                <tr>
+                    <td>${fecha}</td>
+                    <td>${res.email}</td>
+                    <td>${res.tiempo}</td>
+                    <td style="font-weight:bold; color:${res.nota >= 5 ? 'green' : 'red'}">${res.nota}</td>
+                </tr>
+            `;
+        });
+    } catch (e) {
+        console.error(e);
+        cuerpoTabla.innerHTML = "<tr><td colspan='4'>Error al cargar resultados.</td></tr>";
     }
-
-    snap.forEach(d => {
-        const res = d.data();
-        const fecha = res.fecha?.toDate().toLocaleString() || "---";
-        cuerpoTabla.innerHTML += `
-            <tr>
-                <td>${fecha}</td>
-                <td>${res.email}</td>
-                <td>${res.tiempo}</td>
-                <td style="font-weight:bold; color:${res.nota >= 5 ? 'green' : 'red'}">${res.nota}</td>
-            </tr>
-        `;
-    });
 };
 
 window.volverAQuizzes = () => {
