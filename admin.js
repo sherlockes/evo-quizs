@@ -224,17 +224,25 @@ export async function importarAlumnosCSV(lista) {
     let exitos = 0;
     let errores = 0;
 
-    console.log("Datos recibidos para procesar:", lista); // Para depurar
+    // Función auxiliar para evitar errores de .trim()
+    const limpiar = (valor) => {
+        if (valor === null || valor === undefined) return "";
+        return String(valor).trim();
+    };
 
-    for (const alumno of lista) {
-        // Intentamos leer por nombre de columna o por posición (0, 1, 2)
-        const email = (alumno.email || alumno['email'] || Object.values(alumno)[0])?.trim();
-        const pass = (alumno.password || alumno['password'] || Object.values(alumno)[1])?.trim();
-        const curso = (alumno.curso || alumno['curso'] || Object.values(alumno)[2])?.trim();
+    for (const fila of lista) {
+        // Obtenemos los valores de las columnas
+        // Intentamos por nombre de cabecera o por posición (0, 1, 2)
+        const email = limpiar(fila.email || Object.values(fila)[0]);
+        const pass = limpiar(fila.password || Object.values(fila)[1]);
+        const curso = limpiar(fila.curso || Object.values(fila)[2]);
 
-        // Si falta el curso o el email, no podemos crear al usuario correctamente
+        // Si la fila está vacía (común al final de los CSV), la saltamos sin contar error
+        if (!email && !pass) continue;
+
+        // Si falta algún dato crítico, contamos error y avisamos en consola
         if (!email || !pass || !curso) {
-            console.warn("Faltan datos en la fila:", alumno);
+            console.error("Fila incompleta detectada:", fila);
             errores++;
             continue;
         }
