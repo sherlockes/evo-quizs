@@ -192,7 +192,7 @@
     import { auth, CORREO_ADMIN, db } from './config.js';
     import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    import { activarSincronizacionAlumnos, activarSincronizacionQuizzes, crearAlumnoManual, guardarNuevoQuiz, renderizarEditor, importarAlumnosCSV } from './admin.js';
+    import { activarSincronizacionAlumnos, activarSincronizacionQuizzes, crearAlumnoManual, guardarNuevoQuiz, renderizarEditor, importarAlumnosCSV, borrarTodosLosAlumnos } from './admin.js';
     import { cargarListaExamenes } from './alumno.js';
 
     // Lógica de Pestañas
@@ -300,6 +300,30 @@
             });
         };
     }
+
+    // Lógica para Borrar Todos los Alumnos
+    document.getElementById('btn-borrar-todo').onclick = async () => {
+        const conf1 = confirm("¿Estás seguro de que quieres borrar TODOS los alumnos? Esta acción no se puede deshacer.");
+        if (conf1) {
+            const conf2 = confirm("¡ÚLTIMO AVISO! Se eliminarán todos los registros de alumnos del sistema. ¿Proceder?");
+            if (conf2) {
+                try {
+                    const btn = document.getElementById('btn-borrar-todo');
+                    btn.innerText = "⌛ Borrando...";
+                    btn.disabled = true;
+
+                    const total = await borrarTodosLosAlumnos();
+                    
+                    alert(`Limpieza completada. Se han eliminado ${total} alumnos.`);
+                } catch (e) {
+                    alert("Error al borrar: " + e.message);
+                } finally {
+                    document.getElementById('btn-borrar-todo').innerText = "⚠️ Borrar Alumnos";
+                    document.getElementById('btn-borrar-todo').disabled = false;
+                }
+            }
+        }
+    };
 </script>
 </body>
 </html>

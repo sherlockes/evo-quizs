@@ -240,3 +240,25 @@ export async function importarAlumnosCSV(lista) {
     }
     return { exitos, errores };
 }
+
+export async function borrarTodosLosAlumnos() {
+    try {
+        const querySnapshot = await getDocs(collection(db, "usuarios"));
+        let cont = 0;
+        
+        // Usamos un bucle para borrar uno a uno, saltando al admin
+        const promesas = [];
+        querySnapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            if (data.email !== CORREO_ADMIN) {
+                promesas.push(deleteDoc(doc(db, "usuarios", docSnap.id)));
+                cont++;
+            }
+        });
+
+        await Promise.all(promesas);
+        return cont;
+    } catch (e) {
+        throw e;
+    }
+}
