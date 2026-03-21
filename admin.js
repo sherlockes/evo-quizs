@@ -1,7 +1,7 @@
 import { db, secondaryAuth, CORREO_ADMIN } from './config.js';
 
 import { 
-    collection, onSnapshot, doc, updateDoc, deleteDoc, addDoc, setDoc, getDocs, query, where, orderBy 
+    collection, onSnapshot, doc, updateDoc, deleteDoc, addDoc, setDoc, getDoc, getDocs, query, where, orderBy 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import { createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
