@@ -159,20 +159,24 @@ window.editarInfoQuiz = async (id, tituloActual, cursoActual) => {
 
 // Función para mostrar los resultados de un quiz específico
 window.verResultadosQuiz = async (id, titulo) => {
-    idQuizResultadosActual = id; // Guardamos el ID para usarlo luego
-    const viewQuizzes = document.getElementById('view-quizzes');
-    const viewResultados = document.getElementById('view-resultados');
+    idQuizResultadosActual = id; 
+    
+    // Referencias a la nueva sección integrada
+    const seccionRes = document.getElementById('seccion-resultados-integrada');
     const cuerpoTabla = document.getElementById('tabla-resultados-body');
     const tituloRes = document.getElementById('res-titulo-quiz');
 
+    // 1. Preparamos el título y mostramos el estado de carga
     tituloRes.innerText = `Resultados: ${titulo}`;
-    cuerpoTabla.innerHTML = "<tr><td colspan='4'>Cargando...</td></tr>";
+    cuerpoTabla.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Cargando...</td></tr>";
 
-    viewQuizzes.classList.add('hidden');
-    viewResultados.classList.remove('hidden');
+    // 2. ¡IMPORTANTE!: Mostramos la sección sin ocultar la tabla de arriba
+    seccionRes.classList.remove('hidden');
+
+    // 3. Scroll suave para que la pantalla baje automáticamente a los resultados
+    seccionRes.scrollIntoView({ behavior: 'smooth' });
 
     try {
-        // Consulta directa y sencilla
         const q = query(
             collection(db, "resultados"), 
             where("quizId", "==", id),
@@ -181,34 +185,38 @@ window.verResultadosQuiz = async (id, titulo) => {
 
         const snap = await getDocs(q);
         cuerpoTabla.innerHTML = "";
+        datosResultadosActuales = []; // Limpiamos el array para la exportación Excel
 
         if (snap.empty) {
-            cuerpoTabla.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Sin intentos registrados.</td></tr>";
+            cuerpoTabla.innerHTML = "<tr><td colspan='4' style='text-align:center; padding: 20px;'>Sin intentos registrados.</td></tr>";
             return;
         }
 
         snap.forEach(d => {
             const res = d.data();
             const fecha = res.fecha?.toDate().toLocaleString() || "---";
+            
+            // Guardamos para la exportación
             datosResultadosActuales.push({ fecha, email: res.email, tiempo: res.tiempo, nota: res.nota });
+            
             cuerpoTabla.innerHTML += `
                 <tr>
-                    <td>${fecha}</td>
-                    <td>${res.email}</td>
-                    <td>${res.tiempo}</td>
-                    <td style="font-weight:bold; color:${res.nota >= 5 ? 'green' : 'red'}">${res.nota}</td>
+                    <td style="font-size: 13px;">${fecha}</td>
+                    <td style="font-size: 13px;">${res.email}</td>
+                    <td style="font-size: 13px; text-align:center;">${res.tiempo}</td>
+                    <td style="font-size: 13px; font-weight:bold; text-align:center; color:${res.nota >= 5 ? 'green' : 'red'}">${res.nota}</td>
                 </tr>
             `;
         });
     } catch (e) {
         console.error(e);
-        cuerpoTabla.innerHTML = "<tr><td colspan='4'>Error al cargar resultados.</td></tr>";
+        cuerpoTabla.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Error al cargar resultados.</td></tr>";
     }
 };
 
-window.volverAQuizzes = () => {
-    document.getElementById('view-resultados').classList.add('hidden');
-    document.getElementById('view-quizzes').classList.remove('hidden');
+window.ocultarResultados = () => {
+    document.getElementById('seccion-resultados-integrada').classList.add('hidden');
+    idQuizResultadosActual = null;
 };
 
 
