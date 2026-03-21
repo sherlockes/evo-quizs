@@ -126,22 +126,23 @@
         </div>
 
         <div id="view-alumnos" class="admin-content">
-            <h4>Gestión de Alumnos</h4>
+            <h4>Nuevo</h4>
             <div class="form-manual">
                 <div class="flex-row">
                     <input type="email" id="m-email" placeholder="Email">
                     <input type="password" id="m-pass" placeholder="Pass">
                     <input type="text" id="m-curso" placeholder="Curso">
                 </div>
-                <button class="btn-primary" id="btn-crear-manual">Guardar Usuario</button>
+                <button class="btn-primary" id="btn-crear-manual">Guardar</button>
             </div>
 
             <div class="flex-row" style="margin-top: 10px;">
-                <button style="background:#28a745; color:white; flex: 1;" id="btn-importar">📂 Importar CSV</button>
-                <button style="background:#dc3545; color:white; flex: 1;" id="btn-borrar-todo">⚠️ Borrar Alumnos</button>
+                <button style="background:#28a745; color:white; flex: 1;" id="btn-importar">📂 Importar lista (*.csv)</button>
+                <button style="background:#dc3545; color:white; flex: 1;" id="btn-borrar-todo">⚠️ Borrar todos</button>
             </div>
-            <input type="file" id="csv-input" accept=".csv" style="display: none;">          
+            <input type="file" id="csv-input" accept=".csv" style="display: none;">   
 
+            <h4>Listado</h4>
             <div class="tabla-container">
                 <table>
                     <thead><tr><th>Email</th><th>Curso</th><th>Acción</th></tr></thead>
