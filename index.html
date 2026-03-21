@@ -125,6 +125,10 @@
                 </div>
                 <button class="btn-primary" id="btn-crear-manual">Guardar Usuario</button>
             </div>
+
+            <button style="background:#28a745; color:white; width:100%" id="btn-importar">📂 Importar CSV</button>
+            <input type="file" id="csv-input" accept=".csv" style="display: none;">            
+
             <div class="tabla-container">
                 <table>
                     <thead><tr><th>Email</th><th>Curso</th><th>Acción</th></tr></thead>
@@ -185,7 +189,7 @@
     import { auth, CORREO_ADMIN, db } from './config.js';
     import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    import { activarSincronizacionAlumnos, activarSincronizacionQuizzes, crearAlumnoManual, guardarNuevoQuiz, renderizarEditor } from './admin.js';
+    import { activarSincronizacionAlumnos, activarSincronizacionQuizzes, crearAlumnoManual, guardarNuevoQuiz, renderizarEditor, importarAlumnosCSV } from './admin.js';
     import { cargarListaExamenes } from './alumno.js';
 
     // Lógica de Pestañas
@@ -261,6 +265,38 @@
             document.getElementById('q-titulo').value = ""; document.getElementById('q-ruta').value = "";
         } catch(e) { alert(e.message); }
     };
+
+    const btnImportar = document.getElementById('btn-importar');
+    const csvInput = document.getElementById('csv-input');
+
+    if (btnImportar && csvInput) {
+        btnImportar.onclick = () => csvInput.click();
+
+        csvInput.onchange = (e) => {
+            const archivo = e.target.files[0];
+            if (!archivo) return;
+
+            Papa.parse(archivo, {
+                header: true,
+                skipEmptyLines: true,
+                complete: async (results) => {
+                    btnImportar.innerText = "⌛ Procesando...";
+                    btnImportar.disabled = true;
+
+                    try {
+                        const resumen = await importarAlumnosCSV(results.data);
+                        alert(`Importación finalizada:\n✅ Éxitos: ${resumen.exitos}\n❌ Errores: ${resumen.errores}`);
+                    } catch (err) {
+                        alert("Error crítico en la importación: " + err.message);
+                    } finally {
+                        btnImportar.innerText = "📂 Importar CSV";
+                        btnImportar.disabled = false;
+                        csvInput.value = "";
+                    }
+                }
+            });
+        };
+    }
 </script>
 </body>
 </html>

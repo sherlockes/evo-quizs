@@ -216,3 +216,27 @@ document.addEventListener('change', e => {
         reader.readAsText(e.target.files[0]);
     }
 });
+
+// --- IMPORTACIÓN MASIVA CSV ---
+export async function importarAlumnosCSV(lista) {
+    let exitos = 0;
+    let errores = 0;
+
+    for (const alumno of lista) {
+        // Soporta cabeceras 'email', 'password', 'curso' o columnas 0, 1, 2
+        const email = alumno.email || alumno[0];
+        const pass = alumno.password || alumno[1];
+        const curso = alumno.curso || alumno[2];
+
+        if (!email || !pass || !curso) continue;
+
+        try {
+            await crearAlumnoManual(email.trim(), pass.trim(), curso.trim());
+            exitos++;
+        } catch (e) {
+            console.error("Error importando:", email, e);
+            errores++;
+        }
+    }
+    return { exitos, errores };
+}
