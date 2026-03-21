@@ -371,18 +371,38 @@ window.descargarJSON = () => {
     a.click();
 };
 
-// Importar local
-document.addEventListener('change', e => {
-    if (e.target.id === 'importar-json') {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            try {
-                quizEnEdicion = JSON.parse(ev.target.result);
-                renderizarEditor();
-            } catch(err) { alert("Error en el formato JSON"); }
-        };
-        reader.readAsText(e.target.files[0]);
-    }
+// --- LÓGICA DE IMPORTACIÓN DESDE PC ---
+document.getElementById('importar-json').addEventListener('change', (e) => {
+    const archivo = e.target.files[0];
+    if (!archivo) return;
+
+    const reader = new FileReader();
+    reader.onload = (evento) => {
+        try {
+            const nuevasPreguntas = JSON.parse(evento.target.result);
+
+            // COMPROBACIÓN: Verificamos que sea una lista válida
+            if (!Array.isArray(nuevasPreguntas)) {
+                return alert("El archivo no tiene el formato de lista de preguntas adecuado.");
+            }
+
+            // --- CAMBIO CLAVE: CONCATENAR EN LUGAR DE SOBRESCRIBIR ---
+            // Usamos el operador spread (...) para añadir las nuevas al final de las actuales
+            quizEnEdicion = [...quizEnEdicion, ...nuevasPreguntas];
+
+            renderizarEditor(); // Refrescamos la vista
+            
+            alert(`✅ Se han añadido ${nuevasPreguntas.length} preguntas nuevas. Tienes un total de ${quizEnEdicion.length}.`);
+            
+            // Limpiamos el input para poder importar el mismo archivo otra vez si se desea
+            e.target.value = ""; 
+            
+        } catch (err) {
+            alert("Error al procesar el JSON: Asegúrate de que el formato sea correcto.");
+            console.error(err);
+        }
+    };
+    reader.readAsText(archivo);
 });
 
 // --- IMPORTACIÓN MASIVA CSV ---
