@@ -280,17 +280,22 @@
             if (!archivo) return;
 
             Papa.parse(archivo, {
-                header: true,
+                header: true, // Esto busca la fila de 'email,password,curso'
                 skipEmptyLines: true,
                 complete: async (results) => {
+                    if (results.data.length === 0) {
+                        alert("El archivo CSV parece estar vacío.");
+                        return;
+                    }
+                    
                     btnImportar.innerText = "⌛ Procesando...";
                     btnImportar.disabled = true;
 
                     try {
                         const resumen = await importarAlumnosCSV(results.data);
-                        alert(`Importación finalizada:\n✅ Éxitos: ${resumen.exitos}\n❌ Errores: ${resumen.errores}`);
+                        alert(`Importación finalizada:\n✅ Éxitos: ${resumen.exitos}\n❌ Errores: ${resumen.errores}\n\nNota: Asegúrate de que el CSV tenga las columnas: email, password, curso`);
                     } catch (err) {
-                        alert("Error crítico en la importación: " + err.message);
+                        alert("Error crítico: " + err.message);
                     } finally {
                         btnImportar.innerText = "📂 Importar CSV";
                         btnImportar.disabled = false;

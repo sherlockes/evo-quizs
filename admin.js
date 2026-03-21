@@ -224,19 +224,26 @@ export async function importarAlumnosCSV(lista) {
     let exitos = 0;
     let errores = 0;
 
-    for (const alumno of lista) {
-        // Soporta cabeceras 'email', 'password', 'curso' o columnas 0, 1, 2
-        const email = alumno.email || alumno[0];
-        const pass = alumno.password || alumno[1];
-        const curso = alumno.curso || alumno[2];
+    console.log("Datos recibidos para procesar:", lista); // Para depurar
 
-        if (!email || !pass || !curso) continue;
+    for (const alumno of lista) {
+        // Intentamos leer por nombre de columna o por posición (0, 1, 2)
+        const email = (alumno.email || alumno['email'] || Object.values(alumno)[0])?.trim();
+        const pass = (alumno.password || alumno['password'] || Object.values(alumno)[1])?.trim();
+        const curso = (alumno.curso || alumno['curso'] || Object.values(alumno)[2])?.trim();
+
+        // Si falta el curso o el email, no podemos crear al usuario correctamente
+        if (!email || !pass || !curso) {
+            console.warn("Faltan datos en la fila:", alumno);
+            errores++;
+            continue;
+        }
 
         try {
-            await crearAlumnoManual(email.trim(), pass.trim(), curso.trim());
+            await crearAlumnoManual(email, pass, curso);
             exitos++;
         } catch (e) {
-            console.error("Error importando:", email, e);
+            console.error("Error al crear usuario:", email, e.message);
             errores++;
         }
     }
