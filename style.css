@@ -1,0 +1,316 @@
+/* VARIABLES GLOBALES */
+:root { 
+    --p-color: #007bff; 
+    --s-color: #28a745; 
+    --err-color: #dc3545; 
+    --bg-color: #f4f7f6; 
+    --text-color: #333; 
+}
+
+body { 
+    font-family: 'Segoe UI', system-ui, sans-serif; 
+    background: var(--bg-color); 
+    display: flex; 
+    justify-content: center; 
+    padding-top: 20px; 
+    color: var(--text-color); 
+    margin: 0; 
+    min-height: 100vh; 
+}
+
+/* Contenedor Principal */
+.container { 
+    background: white; 
+    padding: 20px; /* Un poco menos de padding para ganar espacio */
+    border-radius: 12px; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08); 
+    width: 95%;      /* Ocupa casi todo el ancho en móviles */
+    max-width: 800px; /* Pero no crece más de 800px en escritorio */
+    text-align: center; 
+    margin: 20px auto; 
+    min-height: 400px;
+}
+
+/* Inputs y Textareas generales */
+input, textarea { 
+    width: 100%; 
+    padding: 10px; 
+    margin: 8px 0; 
+    border: 1px solid #ddd; 
+    border-radius: 6px; 
+    box-sizing: border-box; 
+    font-size: 0.95rem; 
+    transition: border-color 0.2s; 
+}
+
+input:focus, textarea:focus { 
+    border-color: var(--p-color); 
+    outline: none; 
+}
+
+/* Botones */
+button { 
+    padding: 10px; 
+    border: none; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    font-weight: bold; 
+    transition: background 0.2s, transform 0.1s; 
+    margin-top: 5px; 
+    font-size: 0.95rem; 
+}
+
+button:active { transform: scale(0.98); }
+
+.btn-primary { 
+    background: var(--p-color); 
+    color: white; 
+    width: 100%; 
+}
+
+.btn-primary:hover { background: #0069d9; }
+
+/* Sistema de Pestañas (Tabs) */
+.btn-tab { 
+    background: #eee; 
+    color: #555; 
+    flex: 1; 
+    margin-bottom: 20px; 
+    font-size: 14px; 
+    padding: 12px; 
+}
+
+.btn-tab.active { 
+    background: var(--p-color); 
+    color: white; 
+    box-shadow: 0 4px 6px rgba(0,123,255,0.2); 
+}
+
+/* Utilidades */
+.hidden { display: none !important; }
+
+.admin-content { 
+    text-align: left; 
+    padding: 15px; 
+    border: 1px solid #eee; 
+    border-radius: 8px; 
+}
+
+.form-manual { 
+    background: #f8f9fa; 
+    padding: 15px; 
+    border-radius: 8px; 
+    margin-bottom: 20px; 
+    border: 1px solid #eaeaea;
+}
+
+.flex-row { 
+    display: flex; 
+    gap: 10px; 
+    align-items: center; 
+    flex-wrap: wrap; /* Permite que los elementos bajen de línea si no caben */
+}
+
+/* Tablas */
+.tabla-container { 
+    margin-top: 15px; 
+    max-height: 800px; 
+    overflow-y: auto; 
+    border: 1px solid #eee; 
+    border-radius: 6px;
+}
+
+table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    font-size: 0.9rem; 
+}
+
+th, td { 
+    padding: 12px; 
+    border-bottom: 1px solid #eee; 
+    text-align: left; 
+}
+
+th { 
+    background: #f8f9fa; 
+    color: #666; 
+    font-weight: 600; 
+    text-transform: uppercase; 
+    font-size: 0.75rem; 
+    letter-spacing: 0.5px; 
+}
+
+/* Acciones Tablas */
+.btn-accion { 
+    padding: 5px 10px; 
+    font-size: 11px; 
+    width: auto; 
+    margin: 0 2px; 
+}
+
+.btn-edit { background: #ffc107; color: #333; }
+.btn-edit:hover { background: #e0a800; }
+.btn-borrar { background: var(--err-color); color: white; }
+.btn-borrar:hover { background: #c82333; }
+
+/* --- DISEÑO COMPACTO EDITOR --- */
+#lista-preguntas-editor {
+    height: auto; 
+    max-height: none;
+    overflow: visible; 
+    margin-top: 10px;
+}
+
+.pregunta-edit { 
+    background: #fff; 
+    padding: 12px; 
+    border-radius: 8px; 
+    margin-bottom: 12px; 
+    border: 1px solid #ddd; 
+    text-align: left; 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04); 
+    transition: box-shadow 0.2s;
+}
+
+.pregunta-edit:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.06); }
+
+.editor-header-fila { 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    margin-bottom: 8px; 
+}
+
+.editor-num { 
+    font-weight: bold; 
+    color: var(--p-color); 
+    min-width: 30px; 
+    font-size: 1.1rem; 
+    text-align: center; 
+}
+
+.editor-enunciado-input { 
+    flex: 1; 
+    margin: 0 !important; 
+    font-weight: 600; 
+    padding: 8px !important;
+}
+
+.btn-borrar-compact { 
+    background: none; 
+    color: var(--err-color); 
+    font-size: 18px; 
+    padding: 0 5px; 
+    margin: 0; 
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-borrar-compact:hover { background: #ff4d4d1a; }
+
+.editor-opciones-columna { 
+    padding-left: 35px; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 4px; 
+    margin-bottom: 8px; 
+}
+
+.opcion-fila { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+}
+
+.opcion-fila input[type="text"] { 
+    margin: 0 !important; 
+    padding: 6px !important; 
+    font-size: 0.9rem !important; 
+    border-color: #eaeaea;
+}
+
+.opcion-fila input[type="radio"] { 
+    margin: 0; 
+    cursor: pointer; 
+}
+
+/* Explicación Compacta */
+.pregunta-edit textarea { 
+    height: 45px; 
+    margin: 0; 
+    padding: 8px; 
+    font-size: 0.85rem; 
+    background: #fafafa; 
+    border-style: dashed; 
+}
+
+.pregunta-edit textarea:focus { 
+    background: #fff; 
+    border-style: solid; 
+}
+
+/* Resultados */
+#view-resultados button:hover {
+    color: #000 !important;
+    transform: scale(1.1);
+}
+
+/* --- MEDIA QUERIES PARA MÓVIL (Pantallas < 600px) --- */
+@media (max-width: 600px) {
+    body {
+        padding-top: 10px;
+    }
+
+    .container {
+        padding: 15px;
+        width: 100%; /* En móviles muy pequeños, usamos todo el ancho */
+        border-radius: 0; /* Estilo más moderno tipo "app" a pantalla completa */
+        box-shadow: none;
+    }
+
+    /* Pestañas de administración en vertical o más compactas */
+    div[style*="display: flex; gap: 5px;"] {
+        flex-wrap: wrap;
+    }
+
+    .btn-tab {
+        padding: 10px 5px;
+        font-size: 12px;
+        flex: 1 1 40%; /* Dos botones por fila */
+    }
+
+    /* Tablas: Hacemos que se pueda hacer scroll lateral sin romper el diseño */
+    .tabla-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+        min-width: 500px; /* Obliga a la tabla a mantener un ancho mínimo para leerse */
+    }
+
+    /* Formulario de login: inputs más grandes para dedos */
+    input, button {
+        font-size: 16px !important; /* Evita que iOS haga zoom automático al enfocar */
+        padding: 12px;
+    }
+
+    /* Editor de preguntas en móvil */
+    .editor-header-fila {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .editor-num {
+        margin-bottom: 5px;
+    }
+
+    .editor-opciones-columna {
+        padding-left: 10px; /* Menos sangría en móvil */
+    }
+}
