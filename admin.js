@@ -55,8 +55,8 @@ export function activarSincronizacionAlumnos() {
                 <td>${u.email}</td>
                 <td><b>${u.curso}</b></td>
                 <td>
-                    <button class="btn-accion btn-edit" onclick="editarAlumno('${u.id}','${u.curso}')">E</button>
-                    <button class="btn-accion btn-borrar" onclick="borrarAlumno('${u.id}')">X</button>
+                    <button class="btn-accion btn-edit" onclick="editarAlumno('${u.id}','${u.curso}')">✏️</button>
+                    <button class="btn-accion btn-borrar" onclick="borrarAlumno('${u.id}')">🗑️</button>
                 </td>
             </tr>`;
         });
@@ -121,19 +121,19 @@ export function activarSincronizacionQuizzes() {
                     <td><b>${q.curso}</b></td>
                     <td style="text-align:center;">${q.activo ? '✅' : '❌'}</td>
                     <td style="white-space: nowrap;">
-                        <button class="btn-accion" style="background:#546e7a; color:white;" 
+                        <button class="btn-accion" color:white;" 
                             onclick="verResultadosQuiz('${id}', '${q.titulo}')">📊</button>
                         
-                        <button class="btn-accion" style="background:#546e7a; color:white;" 
+                        <button class="btn-accion" color:white;" 
                             onclick="editarInfoQuiz('${id}', '${q.titulo}', '${q.curso}', '${q.ruta}', ${q.activo})">🏷️</button>
                         
-                        <button class="btn-accion" style="background:#546e7a; color:white;" 
+                        <button class="btn-accion" color:white;" 
                             onclick="cargarQuizAlEditor('${id}')">✏️</button>
                         
                         <button class="btn-accion" style="background:${colorCheck}; color:white;" 
                             onclick="alternarEstadoQuiz('${id}', ${q.activo})">✔️</button>
                         
-                        <button class="btn-accion btn-borrar" onclick="borrarQuiz('${id}')">X</button>
+                        <button class="btn-accion btn-borrar" onclick="borrarQuiz('${id}')">🗑️</button>
                     </td>
                 </tr>`;
         });
@@ -335,15 +335,15 @@ export function renderizarEditor() {
             <div class="editor-header-fila">
                 <span class="editor-num">${index + 1}</span>
                 <input type="text" class="editor-enunciado-input" value="${item.pregunta}" onchange="actualizarDato(${index}, 'pregunta', this.value)" placeholder="Pregunta...">
-                <button class="btn-borrar-compact" onclick="borrarPreguntaEditor(${index})">✕</button>
+                <button class="btn-borrar-compact" onclick="borrarPreguntaEditor(${index})">🗑️</button>
             </div>
             <div class="editor-opciones-columna">
                 ${item.opciones.map((opt, i) => `
-                    <div class="opcion-fila">
-                        <input type="radio" name="rad-${index}" ${item.respuestaCorrecta === i ? 'checked' : ''} onchange="actualizarDato(${index}, 'respuestaCorrecta', ${i})">
-                        <input type="text" value="${opt}" onchange="actualizarOpcion(${index}, ${i}, this.value)" placeholder="Opción ${i+1}">
-                    </div>
-                `).join('')}
+        <div class="opcion-fila">
+        <input type="radio" name="rad-${index}" ${item.respuestaCorrecta === i ? 'checked' : ''} onchange="actualizarDato(${index}, 'respuestaCorrecta', ${i})">
+        <input type="text" value="${opt}" onchange="actualizarOpcion(${index}, ${i}, this.value)" placeholder="Opción ${i+1}">
+        </div>
+        `).join('')}
             </div>
             <div style="padding-left: 35px;">
                 <textarea placeholder="Explicación..." onchange="actualizarDato(${index}, 'explicacion', this.value)">${item.explicacion || ''}</textarea>

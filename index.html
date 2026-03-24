@@ -11,12 +11,17 @@
 
 <div class="container">
     <div id="section-login">
-        <h2>Cuestionarios de Física y Química</h2>
-        <h3>IES Ángel Sanz Briz </h3>
-        <input type="email" id="l-email" placeholder="Correo electrónico">
+    <h2>Cuestionarios de Física y Química</h2>
+    <h3>IES Ángel Sanz Briz</h3>
+    
+    <input type="email" id="l-email" placeholder="Correo">
+    
+    <div class="login-row">
         <input type="password" id="l-password" placeholder="Contraseña">
         <button class="btn-primary" id="btn-login">Entrar</button>
-        <p id="mensaje" style="color:red; font-size:13px;"></p>
+    </div>
+    
+    <p id="mensaje" style="color:red; font-size:13px;"></p>
     </div>
 
     <div id="section-admin" class="hidden">
@@ -67,26 +72,21 @@
                 </table>
             </div>
             <h4>Nuevo</h4>
-            <div class="form-manual" style="display: flex; gap: 10px; align-items: center; background: #f9f9f9; padding: 10px; border-radius: 8px;">
-    
-                <input type="text" id="q-titulo" placeholder="Título del cuestionario" 
-                       style="flex-grow: 1; margin: 0; min-width: 200px;">
+	    <div class="form-quiz-container">
+		<input type="text" id="q-titulo" placeholder="Título del cuestionario" class="q-input-titulo">
+		
+		<div class="q-controls-row">
+		    <input type="text" id="q-curso" placeholder="Curso" maxlength="6" class="q-input-curso">
 
-                <input type="text" id="q-curso" placeholder="Curso" maxlength="6" 
-                       style="width: 80px; text-align: center; margin: 0;">
+		    <label class="q-label-habilitado">
+			<input type="checkbox" id="q-activo" checked> 
+			<span>Habilitado</span>
+		    </label>
 
-                <label style="display: flex; align-items: center; gap: 5px; font-size: 13px; white-space: nowrap; cursor: pointer; margin: 0; padding: 0 5px;">
-                    <input type="checkbox" id="q-activo" checked style="width: auto; margin: 0;"> 
-                    <span>Habilitado</span>
-                </label>
-
-                <button class="btn-primary" id="btn-guardar-quiz" 
-                        style="background:#546e7a; width: 100px; margin: 0; padding: 10px 0; font-size: 13px; flex-shrink: 0;">
-                    Guardar
-                </button>
-                
-            </div>
-            <hr style="margin: 30px 0; border: none; border-top: 2px dashed #eee;">
+		    <button class="btn-primary" id="btn-guardar-quiz">Guardar</button>
+		</div>
+	    </div>
+	    <hr style="margin: 30px 0; border: none; border-top: 2px dashed #eee;">
 
             <div id="seccion-resultados-integrada" class="hidden" style="margin-top: 10px; background: #fdfdfd; padding: 15px; border: 1px solid #eee; border-radius: 8px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">

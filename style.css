@@ -1,316 +1,196 @@
-/* VARIABLES GLOBALES */
+/* 1. VARIABLES Y BASE */
 :root { 
-    --p-color: #007bff; 
-    --s-color: #28a745; 
-    --err-color: #dc3545; 
-    --bg-color: #f4f7f6; 
-    --text-color: #333; 
+    --p-color: #6366f1;
+    --p-hover: #4f46e5;
+    --s-color: #10b981;
+    --err-color: #ef4444;
+    --bg-color: #f8fafc;
+    --card-bg: #ffffff;
+    --text-color: #1e293b;
+    --text-light: #64748b;
+    --border-color: #e2e8f0;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
+
+* { box-sizing: border-box; }
 
 body { 
-    font-family: 'Segoe UI', system-ui, sans-serif; 
-    background: var(--bg-color); 
-    display: flex; 
-    justify-content: center; 
-    padding-top: 20px; 
-    color: var(--text-color); 
-    margin: 0; 
-    min-height: 100vh; 
+    font-family: 'Inter', system-ui, sans-serif; 
+    background-color: var(--bg-color); 
+    color: var(--text-color);
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    padding: 20px 10px;
 }
 
-/* Contenedor Principal */
 .container { 
-    background: white; 
-    padding: 20px; /* Un poco menos de padding para ganar espacio */
-    border-radius: 12px; 
-    box-shadow: 0 10px 25px rgba(0,0,0,0.08); 
-    width: 95%;      /* Ocupa casi todo el ancho en móviles */
-    max-width: 800px; /* Pero no crece más de 800px en escritorio */
-    text-align: center; 
-    margin: 20px auto; 
-    min-height: 400px;
+    background: var(--card-bg); 
+    padding: 25px; 
+    border-radius: 16px; 
+    box-shadow: var(--shadow); 
+    width: 100%;
+    max-width: 800px;
 }
 
-/* Inputs y Textareas generales */
+/* --- ESTILO LOGIN COMPACTO --- */
+#section-login {
+    max-width: 400px; /* Centramos y estrechamos el login para que no se vea gigante */
+    margin: 0 auto;
+}
+
+.login-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.login-row input {
+    margin: 0 !important;
+    flex-grow: 1; /* El cuadro de contraseña ocupa el espacio sobrante */
+}
+
+#btn-login {
+    width: auto !important; /* Anula el width 100% general */
+    min-width: 100px;
+    margin: 0 !important;
+    padding: 10px 20px;
+    white-space: nowrap;
+}
+
+
+
+/* 2. ELEMENTOS DE FORMULARIO */
 input, textarea { 
     width: 100%; 
     padding: 10px; 
-    margin: 8px 0; 
-    border: 1px solid #ddd; 
-    border-radius: 6px; 
-    box-sizing: border-box; 
-    font-size: 0.95rem; 
-    transition: border-color 0.2s; 
+    border: 1px solid var(--border-color); 
+    border-radius: 8px; 
+    font-size: 15px; 
 }
 
-input:focus, textarea:focus { 
-    border-color: var(--p-color); 
-    outline: none; 
-}
-
-/* Botones */
 button { 
-    padding: 10px; 
+    padding: 10px 15px; 
     border: none; 
-    border-radius: 6px; 
+    border-radius: 8px; 
     cursor: pointer; 
-    font-weight: bold; 
-    transition: background 0.2s, transform 0.1s; 
-    margin-top: 5px; 
-    font-size: 0.95rem; 
-}
-
-button:active { transform: scale(0.98); }
-
-.btn-primary { 
-    background: var(--p-color); 
-    color: white; 
-    width: 100%; 
-}
-
-.btn-primary:hover { background: #0069d9; }
-
-/* Sistema de Pestañas (Tabs) */
-.btn-tab { 
-    background: #eee; 
-    color: #555; 
-    flex: 1; 
-    margin-bottom: 20px; 
-    font-size: 14px; 
-    padding: 12px; 
-}
-
-.btn-tab.active { 
-    background: var(--p-color); 
-    color: white; 
-    box-shadow: 0 4px 6px rgba(0,123,255,0.2); 
-}
-
-/* Utilidades */
-.hidden { display: none !important; }
-
-.admin-content { 
-    text-align: left; 
-    padding: 15px; 
-    border: 1px solid #eee; 
-    border-radius: 8px; 
-}
-
-.form-manual { 
-    background: #f8f9fa; 
-    padding: 15px; 
-    border-radius: 8px; 
-    margin-bottom: 20px; 
-    border: 1px solid #eaeaea;
-}
-
-.flex-row { 
-    display: flex; 
-    gap: 10px; 
-    align-items: center; 
-    flex-wrap: wrap; /* Permite que los elementos bajen de línea si no caben */
-}
-
-/* Tablas */
-.tabla-container { 
-    margin-top: 15px; 
-    max-height: 800px; 
-    overflow-y: auto; 
-    border: 1px solid #eee; 
-    border-radius: 6px;
-}
-
-table { 
-    width: 100%; 
-    border-collapse: collapse; 
-    font-size: 0.9rem; 
-}
-
-th, td { 
-    padding: 12px; 
-    border-bottom: 1px solid #eee; 
-    text-align: left; 
-}
-
-th { 
-    background: #f8f9fa; 
-    color: #666; 
     font-weight: 600; 
-    text-transform: uppercase; 
-    font-size: 0.75rem; 
-    letter-spacing: 0.5px; 
+    transition: all 0.2s; 
 }
 
-/* Acciones Tablas */
-.btn-accion { 
-    padding: 5px 10px; 
-    font-size: 11px; 
-    width: auto; 
-    margin: 0 2px; 
+.btn-primary { background: var(--p-color); color: white; width: 100%; }
+.btn-tab { background: transparent; color: var(--text-light); flex: 1; border-bottom: 2px solid transparent; border-radius: 0; }
+.btn-tab.active { color: var(--p-color); border-bottom: 2px solid var(--p-color); }
+.logout { background: var(--err-color); color: white; flex: none; }
+
+/* 3. FORMULARIO NUEVO CUESTIONARIO */
+.form-quiz-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #f1f5f9;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 20px;
 }
 
-.btn-edit { background: #ffc107; color: #333; }
-.btn-edit:hover { background: #e0a800; }
-.btn-borrar { background: var(--err-color); color: white; }
-.btn-borrar:hover { background: #c82333; }
+.q-controls-row { display: flex; align-items: center; gap: 10px; }
+.q-input-titulo { margin: 0 !important; }
+.q-input-curso { width: 80px; text-align: center; margin: 0 !important; }
+.q-label-habilitado { display: flex; align-items: center; gap: 5px; font-size: 13px; white-space: nowrap; }
+.q-label-habilitado input { width: auto !important; margin: 0 !important; }
+#btn-guardar-quiz { background: #546e7a; color: white; margin: 0 !important; }
 
-/* --- DISEÑO COMPACTO EDITOR --- */
-#lista-preguntas-editor {
-    height: auto; 
-    max-height: none;
-    overflow: visible; 
-    margin-top: 10px;
+/* 4. EDITOR DE PREGUNTAS (Ajuste de alineación) */
+.pregunta-edit {
+    background: #fff;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color);
 }
 
-.pregunta-edit { 
-    background: #fff; 
-    padding: 12px; 
-    border-radius: 8px; 
-    margin-bottom: 12px; 
-    border: 1px solid #ddd; 
-    text-align: left; 
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04); 
-    transition: box-shadow 0.2s;
+.editor-header-fila {
+    display: flex;
+    align-items: center; /* ALINEACIÓN VERTICAL PERFECTA */
+    gap: 10px;
+    margin-bottom: 12px;
 }
 
-.pregunta-edit:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.06); }
-
-.editor-header-fila { 
-    display: flex; 
-    align-items: center; 
-    gap: 10px; 
-    margin-bottom: 8px; 
+.editor-num {
+    font-weight: bold;
+    color: var(--p-color);
+    font-size: 1.1rem;
+    min-width: 25px;
 }
 
-.editor-num { 
-    font-weight: bold; 
-    color: var(--p-color); 
-    min-width: 30px; 
-    font-size: 1.1rem; 
-    text-align: center; 
+.editor-enunciado-input {
+    flex-grow: 1;
+    margin: 0 !important;
 }
 
-.editor-enunciado-input { 
-    flex: 1; 
-    margin: 0 !important; 
-    font-weight: 600; 
-    padding: 8px !important;
+.btn-borrar-compact {
+    background: #fee2e2;
+    color: var(--err-color);
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    line-height: 1;
 }
 
-.btn-borrar-compact { 
-    background: none; 
-    color: var(--err-color); 
-    font-size: 18px; 
-    padding: 0 5px; 
-    margin: 0; 
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
+/* 5. OPCIONES (Los "Bolos") */
+.opcion-fila {
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 10px;
+    margin: 6px 0 6px 35px; /* Sangría para que no choquen con el número */
 }
 
-.btn-borrar-compact:hover { background: #ff4d4d1a; }
-
-.editor-opciones-columna { 
-    padding-left: 35px; 
-    display: flex; 
-    flex-direction: column; 
-    gap: 4px; 
-    margin-bottom: 8px; 
+.opcion-fila input[type="radio"] {
+    width: auto !important;
+    margin: 0;
+    transform: scale(1.2);
 }
 
-.opcion-fila { 
-    display: flex; 
-    align-items: center; 
-    gap: 8px; 
+.opcion-fila input[type="text"] {
+    margin: 0 !important;
+    flex-grow: 1;
 }
 
-.opcion-fila input[type="text"] { 
-    margin: 0 !important; 
-    padding: 6px !important; 
-    font-size: 0.9rem !important; 
-    border-color: #eaeaea;
-}
+/* 6. TABLAS */
+.tabla-container { margin-top: 15px; overflow-x: auto; border-radius: 8px; border: 1px solid var(--border-color); background: white; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 450px; }
+th, td { padding: 12px; border-bottom: 1px solid var(--border-color); text-align: left; white-space: nowrap; }
+.btn-accion { padding: 6px 10px; font-size: 1.1rem; width: auto; display: inline-flex; align-items: center; justify-content: center; }
+.btn-edit { background: #ffb100; color: white; }
+.btn-borrar { background: var(--err-color); color: white; }
 
-.opcion-fila input[type="radio"] { 
-    margin: 0; 
-    cursor: pointer; 
-}
+.hidden { display: none !important; }
 
-/* Explicación Compacta */
-.pregunta-edit textarea { 
-    height: 45px; 
-    margin: 0; 
-    padding: 8px; 
-    font-size: 0.85rem; 
-    background: #fafafa; 
-    border-style: dashed; 
-}
-
-.pregunta-edit textarea:focus { 
-    background: #fff; 
-    border-style: solid; 
-}
-
-/* Resultados */
-#view-resultados button:hover {
-    color: #000 !important;
-    transform: scale(1.1);
-}
-
-/* --- MEDIA QUERIES PARA MÓVIL (Pantallas < 600px) --- */
+/* 7. MEDIA QUERIES (MÓVIL) */
 @media (max-width: 600px) {
-    body {
-        padding-top: 10px;
-    }
-
-    .container {
-        padding: 15px;
-        width: 100%; /* En móviles muy pequeños, usamos todo el ancho */
-        border-radius: 0; /* Estilo más moderno tipo "app" a pantalla completa */
-        box-shadow: none;
-    }
-
-    /* Pestañas de administración en vertical o más compactas */
-    div[style*="display: flex; gap: 5px;"] {
-        flex-wrap: wrap;
-    }
-
-    .btn-tab {
-        padding: 10px 5px;
-        font-size: 12px;
-        flex: 1 1 40%; /* Dos botones por fila */
-    }
-
-    /* Tablas: Hacemos que se pueda hacer scroll lateral sin romper el diseño */
-    .tabla-container {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    table {
-        min-width: 500px; /* Obliga a la tabla a mantener un ancho mínimo para leerse */
-    }
-
-    /* Formulario de login: inputs más grandes para dedos */
-    input, button {
-        font-size: 16px !important; /* Evita que iOS haga zoom automático al enfocar */
-        padding: 12px;
-    }
-
-    /* Editor de preguntas en móvil */
-    .editor-header-fila {
-        flex-direction: column;
-        align-items: flex-start;
-    }
+    .container { padding: 15px; border-radius: 0; }
     
-    .editor-num {
-        margin-bottom: 5px;
-    }
+    .q-controls-row { justify-content: space-between; }
+    .q-input-curso { width: 65px !important; }
+    #btn-guardar-quiz { flex: 1; padding: 10px 5px; }
 
-    .editor-opciones-columna {
-        padding-left: 10px; /* Menos sangría en móvil */
+    /* Ajuste tabla móvil */
+    table { min-width: 600px !important; }
+
+    /* Ajuste editor móvil */
+    .opcion-fila { margin-left: 0; } /* Quitamos sangría en móvil para ganar espacio */
+    
+    .editor-header-fila { gap: 5px; }
+    .editor-num { font-size: 1rem; min-width: 20px; }
+
+    /* Ajuste para móvil: si el móvil es muy estrecho, reducimos el botón */
+@media (max-width: 600px) {
+    #btn-login {
+        min-width: 80px;
+        padding: 10px 15px;
+        font-size: 14px;
     }
+}
 }
