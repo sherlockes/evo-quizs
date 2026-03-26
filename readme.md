@@ -35,6 +35,7 @@
 ├── style.css           # Hoja de estilos principal (Modo oscuro/claro y layout)
 ├── cuestionarios/      # Almacén de archivos JSON (ej. contaminacion_atmosferica.json)
 └── ai.sh               # Script de utilidad del proyecto
+```
 
 ## 🚀 Configuración e Instalación
 Clonar el repositorio:
