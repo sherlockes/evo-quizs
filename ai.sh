@@ -6,7 +6,7 @@ OUTPUT="ai_context.txt"
 IGNORE_DIRS=(".git" "node_modules" "dist" "assets" "img")
 
 # 2. LISTA DE CARPETAS DE "SOLO MUESTRA"
-SAMPLE_DIRS=("logs" "data" "texts" "backup")
+SAMPLE_DIRS=("cuestionarios" "data" "texts" "backup")
 
 echo "Generando contexto optimizado..."
 
