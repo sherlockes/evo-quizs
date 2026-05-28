@@ -229,16 +229,29 @@
     };
 
     document.getElementById('btn-guardar-quiz').onclick = async () => {
+        const tituloEl = document.getElementById('q-titulo');
+        const cursoEl = document.getElementById('q-curso');
+        const rutaEl = document.getElementById('q-ruta');
+        const activoEl = document.getElementById('q-activo');
+
+        if (!tituloEl.value.trim() || !cursoEl.value.trim()) {
+            alert("Por favor, introduce un título y un curso.");
+            return;
+        }
+
         const d = {
-            titulo: document.getElementById('q-titulo').value,
-            curso: document.getElementById('q-curso').value,
-            ruta: document.getElementById('q-ruta').value,
-            activo: document.getElementById('q-activo').checked
+            titulo: tituloEl.value.trim(),
+            curso: cursoEl.value.trim().substring(0, 6),
+            ruta: rutaEl ? rutaEl.value.trim() : "",
+            activo: activoEl ? activoEl.checked : true,
+            preguntas: []
         };
         try {
             await guardarNuevoQuiz(d);
             alert("Registrado");
-            document.getElementById('q-titulo').value = ""; document.getElementById('q-ruta').value = "";
+            tituloEl.value = "";
+            cursoEl.value = "";
+            if (rutaEl) rutaEl.value = "";
         } catch(e) { alert(e.message); }
     };
 

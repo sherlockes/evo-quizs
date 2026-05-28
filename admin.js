@@ -121,19 +121,19 @@ export function activarSincronizacionQuizzes() {
                     <td><b>${q.curso}</b></td>
                     <td style="text-align:center;">${q.activo ? '✅' : '❌'}</td>
                     <td style="white-space: nowrap;">
-                        <button class="btn-accion" color:white;" 
-                            onclick="verResultadosQuiz('${id}', '${q.titulo}')">📊</button>
+                        <button class="btn-accion" style="background: #0ea5e9; color: white;" 
+                            onclick="verResultadosQuiz('${id}', '${q.titulo}')" title="Ver resultados">📊</button>
                         
-                        <button class="btn-accion" color:white;" 
-                            onclick="editarInfoQuiz('${id}', '${q.titulo}', '${q.curso}', '${q.ruta}', ${q.activo})">🏷️</button>
+                        <button class="btn-accion" style="background: #ffb100; color: white;" 
+                            onclick="editarInfoQuiz('${id}', '${q.titulo}', '${q.curso}')" title="Editar info">🏷️</button>
                         
-                        <button class="btn-accion" color:white;" 
-                            onclick="cargarQuizAlEditor('${id}')">✏️</button>
+                        <button class="btn-accion" style="background: var(--p-color); color: white;" 
+                            onclick="cargarQuizAlEditor('${id}')" title="Editar preguntas">✏️</button>
                         
-                        <button class="btn-accion" style="background:${colorCheck}; color:white;" 
-                            onclick="alternarEstadoQuiz('${id}', ${q.activo})">✔️</button>
+                        <button class="btn-accion" style="background: ${colorCheck}; color: white;" 
+                            onclick="alternarEstadoQuiz('${id}', ${q.activo})" title="Activar/Desactivar">✔️</button>
                         
-                        <button class="btn-accion btn-borrar" onclick="borrarQuiz('${id}')">🗑️</button>
+                        <button class="btn-accion btn-borrar" onclick="borrarQuiz('${id}')" title="Eliminar cuestionario">🗑️</button>
                     </td>
                 </tr>`;
         });
@@ -294,9 +294,15 @@ window.borrarQuiz = async (id) => {
 
 export async function guardarNuevoQuiz(datos) {
     try {
-        let r = datos.ruta.trim();
-        if (!r.startsWith('cuestionarios/')) r = `cuestionarios/${r}`;
-        await addDoc(collection(db, "cuestionarios"), { ...datos, ruta: r });
+        let r = datos.ruta ? datos.ruta.trim() : "";
+        if (r && !r.startsWith('cuestionarios/')) {
+            r = `cuestionarios/${r}`;
+        }
+        await addDoc(collection(db, "cuestionarios"), { 
+            ...datos, 
+            ruta: r,
+            preguntas: datos.preguntas || []
+        });
         return true;
     } catch (e) { throw e; }
 }
