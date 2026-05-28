@@ -113,7 +113,7 @@ button {
 
 .editor-header-fila {
     display: flex;
-    align-items: center; /* ALINEACIÓN VERTICAL PERFECTA */
+    align-items: flex-start; /* Alineado arriba para soportar enunciados largos multilínea */
     gap: 10px;
     margin-bottom: 12px;
 }
@@ -123,6 +123,7 @@ button {
     color: var(--p-color);
     font-size: 1.1rem;
     min-width: 25px;
+    margin-top: 7px; /* Alinear exactamente con la primera línea del textarea */
 }
 
 .editor-enunciado-input {

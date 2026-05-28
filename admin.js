@@ -13,9 +13,26 @@ let infoQuizActual = { titulo: "", curso: "" };
 let idQuizResultadosActual = null; // Para saber qué estamos exportando/borrando
 let datosResultadosActuales = [];  // Para guardar temporalmente lo que exportaremos
 
+// Referencias a suscripciones en tiempo real
+let unsubscribeAlumnos = null;
+let unsubscribeQuizzes = null;
+
+export function desactivarSincronizaciones() {
+    if (unsubscribeAlumnos) {
+        unsubscribeAlumnos();
+        unsubscribeAlumnos = null;
+    }
+    if (unsubscribeQuizzes) {
+        unsubscribeQuizzes();
+        unsubscribeQuizzes = null;
+    }
+}
+
 // --- GESTIÓN DE ALUMNOS (Con ordenado por Curso y Email) ---
 export function activarSincronizacionAlumnos() {
-    onSnapshot(collection(db, "usuarios"), (snap) => {
+    if (unsubscribeAlumnos) unsubscribeAlumnos();
+
+    unsubscribeAlumnos = onSnapshot(collection(db, "usuarios"), (snap) => {
         const t = document.getElementById('cuerpo-tabla');
         if (!t) return;
         t.innerHTML = "";
@@ -60,6 +77,8 @@ export function activarSincronizacionAlumnos() {
                 </td>
             </tr>`;
         });
+    }, (err) => {
+        console.warn("Suscripción de alumnos detenida:", err.message);
     });
 }
 
@@ -106,7 +125,9 @@ export async function crearAlumnoManual(email, pass, curso) {
 
 // --- GESTIÓN DE CUESTIONARIOS ---
 export function activarSincronizacionQuizzes() {
-    onSnapshot(collection(db, "cuestionarios"), (snap) => {
+    if (unsubscribeQuizzes) unsubscribeQuizzes();
+
+    unsubscribeQuizzes = onSnapshot(collection(db, "cuestionarios"), (snap) => {
         const tabla = document.getElementById('tabla-quizzes');
         if (!tabla) return;
         tabla.innerHTML = "";
@@ -125,7 +146,7 @@ export function activarSincronizacionQuizzes() {
                             onclick="verResultadosQuiz('${id}', '${q.titulo}')" title="Ver resultados">📊</button>
                         
                         <button class="btn-accion" style="background: #ffb100; color: white;" 
-                            onclick="editarInfoQuiz('${id}', '${q.titulo}', '${q.curso}')" title="Editar info">🏷️</button>
+                            onclick="editarInfoQuiz('${id}')" title="Editar info">🏷️</button>
                         
                         <button class="btn-accion" style="background: var(--p-color); color: white;" 
                             onclick="cargarQuizAlEditor('${id}')" title="Editar preguntas">✏️</button>
@@ -137,18 +158,27 @@ export function activarSincronizacionQuizzes() {
                     </td>
                 </tr>`;
         });
+    }, (err) => {
+        console.warn("Suscripción de cuestionarios detenida:", err.message);
     });
 }
 
 // Actualizamos la edición para incluir el estado activo
-window.editarInfoQuiz = async (id, tituloActual, cursoActual) => {
-    const nuevoTitulo = prompt("Nuevo título:", tituloActual);
-    if (nuevoTitulo === null) return;
-    const nuevoCurso = prompt("Nuevo curso (máx. 6 caracteres):", cursoActual);
-    if (nuevoCurso === null) return;
-
+window.editarInfoQuiz = async (id) => {
     try {
-        await updateDoc(doc(db, "cuestionarios", id), {
+        const docRef = doc(db, "cuestionarios", id);
+        const docSnap = await getDoc(docRef);
+        if (!docSnap.exists()) {
+            return alert("El cuestionario ya no existe.");
+        }
+        const q = docSnap.data();
+
+        const nuevoTitulo = prompt("Nuevo título:", q.titulo);
+        if (nuevoTitulo === null) return;
+        const nuevoCurso = prompt("Nuevo curso (máx. 6 caracteres):", q.curso);
+        if (nuevoCurso === null) return;
+
+        await updateDoc(docRef, {
             titulo: nuevoTitulo.trim(),
             curso: nuevoCurso.trim().substring(0, 6)
         });
@@ -269,26 +299,36 @@ window.borrarQuiz = async (id) => {
         const q = query(collection(db, "resultados"), where("quizId", "==", id));
         const resultadosSnap = await getDocs(q);
 
-        // 2. Borramos los resultados asociados en bloque
+        // 2. Borramos los resultados asociados en bloque (capturando fallos de permisos individualmente)
         const promesasBorrado = [];
         resultadosSnap.forEach((resDoc) => {
-            promesasBorrado.push(deleteDoc(doc(db, "resultados", resDoc.id)));
+            const promesa = deleteDoc(doc(db, "resultados", resDoc.id)).catch(err => {
+                console.warn(`No se pudo eliminar el resultado del alumno (${resDoc.id}). Posible restricción de políticas de Firebase:`, err);
+            });
+            promesasBorrado.push(promesa);
         });
 
-        // Esperamos a que se borren todos los resultados (si los hay)
+        // Esperamos a que terminen los intentos de borrado (hayan fallado o no)
         if (promesasBorrado.length > 0) {
             await Promise.all(promesasBorrado);
-            console.log(`Se eliminaron ${promesasBorrado.length} registros de notas.`);
         }
 
         // 3. Finalmente, borramos el cuestionario de la colección principal
         await deleteDoc(doc(db, "cuestionarios", id));
         
-        alert("Cuestionario y resultados eliminados con éxito.");
+        // Si el cuestionario borrado estaba abierto en el editor o resultados, los cerramos automáticamente
+        if (idQuizActual === id) {
+            cerrarEditor();
+        }
+        if (idQuizResultadosActual === id) {
+            ocultarResultados();
+        }
+
+        alert("Cuestionario eliminado con éxito.");
 
     } catch (e) {
         console.error("Error en el proceso de borrado:", e);
-        alert("No se pudo eliminar todo: " + e.message);
+        alert("No se pudo eliminar el cuestionario: " + e.message);
     }
 };
 
@@ -340,8 +380,8 @@ export function renderizarEditor() {
         div.innerHTML = `
             <div class="editor-header-fila">
                 <span class="editor-num">${index + 1}</span>
-                <input type="text" class="editor-enunciado-input" value="${item.pregunta}" onchange="actualizarDato(${index}, 'pregunta', this.value)" placeholder="Pregunta...">
-                <button class="btn-borrar-compact" onclick="borrarPreguntaEditor(${index})">🗑️</button>
+                <textarea class="editor-enunciado-input" onchange="actualizarDato(${index}, 'pregunta', this.value)" oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'" placeholder="Pregunta..." rows="1" style="height: auto; resize: none; overflow-y: hidden; min-height: 38px; line-height: 1.4; font-family: inherit; font-size: 15px; box-sizing: border-box; flex-grow: 1; margin: 0 !important;">${item.pregunta}</textarea>
+                <button class="btn-borrar-compact" onclick="borrarPreguntaEditor(${index})" style="margin-top: 2px;">🗑️</button>
             </div>
             <div class="editor-opciones-columna">
                 ${item.opciones.map((opt, i) => `
@@ -352,10 +392,22 @@ export function renderizarEditor() {
         `).join('')}
             </div>
             <div style="padding-left: 35px;">
-                <textarea placeholder="Explicación..." onchange="actualizarDato(${index}, 'explicacion', this.value)">${item.explicacion || ''}</textarea>
+                <textarea class="editor-explicacion-input" placeholder="Explicación..." onchange="actualizarDato(${index}, 'explicacion', this.value)" oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'" rows="1" style="height: auto; resize: none; overflow-y: hidden; min-height: 38px; line-height: 1.4; font-family: inherit; font-size: 15px; box-sizing: border-box; width: 100%;">${item.explicacion || ''}</textarea>
             </div>
         `;
         contenedor.appendChild(div);
+
+        // Ajustamos las alturas iniciales después de insertar al DOM
+        const taPreg = div.querySelector('.editor-enunciado-input');
+        if (taPreg) {
+            taPreg.style.height = 'auto';
+            taPreg.style.height = taPreg.scrollHeight + 'px';
+        }
+        const taExp = div.querySelector('.editor-explicacion-input');
+        if (taExp) {
+            taExp.style.height = 'auto';
+            taExp.style.height = taExp.scrollHeight + 'px';
+        }
     });
 }
 
@@ -384,12 +436,21 @@ window.borrarPreguntaEditor = (i) => {
 
 window.descargarJSON = () => {
     if(quizEnEdicion.length === 0) return alert("Nada que descargar");
+
+    let nombreArchivo = "cuestionario.json";
+    if (infoQuizActual.curso && infoQuizActual.titulo) {
+        const tituloLimpio = infoQuizActual.titulo.trim().replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s_-]/g, "");
+        const cursoLimpio = infoQuizActual.curso.trim().replace(/[^a-zA-Z0-9\s_-]/g, "");
+        nombreArchivo = `${cursoLimpio}-${tituloLimpio}.json`.replace(/\s+/g, "_");
+    }
+
     const blob = new Blob([JSON.stringify(quizEnEdicion, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = "cuestionario.json";
+    a.download = nombreArchivo;
     a.click();
+    URL.revokeObjectURL(url);
 };
 
 // --- LÓGICA DE IMPORTACIÓN DESDE PC ---
@@ -515,7 +576,11 @@ window.borrarResultadosQuiz = async () => {
         alert("Historial de notas eliminado.");
         verResultadosQuiz(idQuizResultadosActual, document.getElementById('res-titulo-quiz').innerText.replace('Resultados: ', ''));
     } catch (e) {
-        alert("Error al borrar: " + e.message);
+        if (e.code === 'permission-denied' || e.message.includes('permissions')) {
+            alert("Error: No tienes permisos en Firebase para borrar las notas. El sistema de base de datos está protegido para que no se puedan alterar o borrar los registros de exámenes realizados por los alumnos.");
+        } else {
+            alert("Error al borrar: " + e.message);
+        }
     }
 };
 
